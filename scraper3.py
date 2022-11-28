@@ -34,8 +34,8 @@ d1 = today.strftime("%d/%m/%Y") # dd/mm/YY
 
 days=driver.find_element(By.CLASS_NAME,'wf10dayRightContent')
 day=days.find_elements(By.TAG_NAME,'a')
-print(len(day))
-print(day[0].find_element(By.CSS_SELECTOR,'#wf10day > div.wf10dayRightContent > a.wf10dayRight.wf10dayRightFirst > span.wf10dayRighValue.wf10dayRightRainValue').text)
+# print(len(day))
+print(day[0].find_element(By.XPATH,'/html/body/div[2]/div[2]/div[3]/div[2]/div/div/div[2]/a[1]/span[7]').text)
 for i in range(0,9):
     dayoftheweek.append(day[i].find_element(By.CLASS_NAME,'wf10dayRightDay').text)
     exdate.append(day[i].find_element(By.CLASS_NAME,'wf10dayRightDate').text)

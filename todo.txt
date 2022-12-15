@@ -1,0 +1,6 @@
+1. scraper2.py=freemeteo
+    "днешният ден" няма max temp => полето стои празно и дори няма attribute text
+2. scraper3.py=sinoptik
+    rain chance/humidity не могат да бъдат свалени
+3. selenscrape=weather.com (да се смени с dali vali)
+    динамичен html/css и не може да бъде използвано напред във времето. Да се подмени с dalivali

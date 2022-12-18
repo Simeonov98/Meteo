@@ -44,3 +44,5 @@ for i in range(0,9):
     winddir.append(day[i].find_element(By.CLASS_NAME,'wf10dayRightWind').get_attribute('title'))
     windspd.append(day[i].find_element(By.CLASS_NAME,'wf10dayRightWind').text)
     rainchance.append(day[i].find_element(By.CLASS_NAME,'wf10dayRightRainValue').text)
+   
+    print(dayoftheweek[i]+exdate[i],tmax[i],tmin[i],winddir[i],windspd[i],rainchance[i])

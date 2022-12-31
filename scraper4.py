@@ -4,7 +4,7 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from datetime import date, timedelta
+from datetime import date, datetime
 
 
 options = Options()
@@ -16,10 +16,12 @@ driver.get(
      "https://www.dalivali.bg/?type=daily&location=173"
 )
 
-row,dayoftheweek,exdate,tmax,tmin,windspd,winddir,rainchance,rainvolume,cloud,sunrise,sundown,daylen,verbal,humidity = ( [] for i in range(15))
+row,dayoftheweek,exdate,tmax,tmin,windspd,winddir,rainchance,rainvolume,cloud,sunrise,sundown,daylen,verbal,humidity,image = ( [] for i in range(16))
 
 today = date.today().strftime("%d/%m/%Y") # dd/mm/YY
 print('Todays date is ' + today)
+hourMinute = datetime.now()
+print(str(hourMinute.hour)+':'+str(hourMinute.minute))
 
 days = driver.find_element(By.CLASS_NAME,'slick-track')
 day = days.find_elements(By.CLASS_NAME,'slick-slide')
@@ -37,7 +39,11 @@ for i in range(0,9):
     winddir.append(day[i].find_element(By.ID,'info-num-wind1').get_attribute('innerText'))
     humidity.append(day[i].find_element(By.ID,'info-num-rain1').get_attribute('innerText'))
     verbal.append(day[i].find_element(By.ID,'descr-day1').get_attribute('innerText'))
-    
+    #image.append(day[i].find_element(By.ID,'icon-next2').screenshot('./dali'+str(exdate[i])+'.png'))
+    image.append(day[i].find_element(By.ID,'icon-next2').get_attribute('src'))
+    #image[i].screenshot('./dali/dali'+str(exdate[i])+' '+str(hourMinute.hour)+':'+str(hourMinute.minute)+'.png')
+
 for i in range(0,9):    
+    print(image[i])
     print(dayoftheweek[i].ljust(11), ' ',exdate[i].ljust(11), ' ', tmax[i].ljust(11), ' ', tmin[i].ljust(11), ' ',
      windspd[i].ljust(11), ' ', winddir[i].ljust(11), ' ', humidity[i].ljust(11), ' ', verbal[i].ljust(11), ' ' )

@@ -40,8 +40,8 @@ for i in range(0,9):
     humidity.append(day[i].find_element(By.ID,'info-num-rain1').get_attribute('innerText'))
     verbal.append(day[i].find_element(By.ID,'descr-day1').get_attribute('innerText'))
     #image.append(day[i].find_element(By.ID,'icon-next2').screenshot('./dali'+str(exdate[i])+'.png'))
-    image.append(day[i].find_element(By.ID,'icon-next2').get_attribute('src'))
-    #image[i].screenshot('./dali/dali'+str(exdate[i])+' '+str(hourMinute.hour)+':'+str(hourMinute.minute)+'.png')
+    image.append(day[i].find_element(By.ID,'icon-next2')) #.get_attribute('src'))
+    image[i].screenshot('./dali/dali'+str(exdate[i])+' '+str(hourMinute.hour)+':'+str(hourMinute.minute)+'.png')
 
 for i in range(0,9):    
     print(image[i])

@@ -7,3 +7,9 @@
     working on image on scraper4. found the image. have to take a screenshot
 ––––––––––––––
 за висчки да се направят изображенията.
+
+-----------
+dependencies
+
+install selenium
+install webdriver_manager

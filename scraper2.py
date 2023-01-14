@@ -4,7 +4,7 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from datetime import date, timedelta
+from datetime import date, datetime
 
 
 options = Options()
@@ -33,8 +33,8 @@ for i in range(0,7):
     tmax.append(day[i].find_element(By.CLASS_NAME,'temps').find_element(By.TAG_NAME,'b').get_attribute('innerText'))
     tmin.append(day[i].find_element(By.CLASS_NAME,'temps').find_element(By.TAG_NAME,'span').get_attribute('innerText'))
     text.append(day[i].find_element(By.CLASS_NAME,'hover').find_element(By.CLASS_NAME,'info').find_element(By.CLASS_NAME,'extra').get_attribute('innerText'))
-    # image.append(day[i].find_element(By.CLASS_NAME,'icon').find_element(By.TAG_NAME,'span'))
-    # image[i].screenshot('./icon'+str(title[i].text)+'.png')
+    image.append(day[i].find_element(By.CLASS_NAME,'icon').find_element(By.TAG_NAME,'span'))
+    image[i].screenshot('./freemeteo '+str(datetime.now()) +'/icon'+str(title[i])+'.png')
     # if len(tmax[i])==0:
     #     tmax[i].text="N/A"
  

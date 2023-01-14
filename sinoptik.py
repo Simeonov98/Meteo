@@ -26,6 +26,7 @@ cloud=[]
 sunrise=[]
 sundown=[]
 daylen=[]
+image=[]
 
 driver = webdriver.Chrome("./chromedriver", options=options,)
 driver.get(
@@ -50,5 +51,6 @@ for i in range(0,9):
     tmin.append(day[i].find_element(By.CLASS_NAME,'wf10dayRightTempLow').text)
     winddir.append(day[i].find_element(By.CLASS_NAME,'wf10dayRightWind').get_attribute('title'))
     windspd.append(day[i].find_element(By.CLASS_NAME,'wf10dayRightWind').text)
-    # rainchance.append(day[i].find_element(By.XPATH,'//*[@id="wf10day"]/div[2]/a[1]/span[7]').get_attribute('text'))
+    image.append(day[i].find_element(By.CLASS_NAME,'wf10dayRightImg'))
+    image[i].screenshot('./')
     print(exdate[i],dayoftheweek[i],tmax[i],tmin[i],winddir[i],windspd[i])

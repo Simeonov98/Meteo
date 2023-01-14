@@ -27,6 +27,8 @@ text=[]
 # wind=verbal[1::2]
 
 print(len(day))
+
+print(str(datetime.now()).rsplit('.',1)[0])
 for i in range(0,7):
     title.append(day[i].find_element(By.CLASS_NAME,'title').find_element(By.TAG_NAME,'span').get_attribute('innerText')) #reaching furhter into the dom (gotta transform text to datetime)
     #tmax.append(day[i].find_element(By.CLASS_NAME,'temps').find_elements(By.CSS_SELECTOR,'#content > div.right-col > div.weather-now > div.today.table > div > div > div:nth-child(2) > div.temps > b'))
@@ -34,7 +36,7 @@ for i in range(0,7):
     tmin.append(day[i].find_element(By.CLASS_NAME,'temps').find_element(By.TAG_NAME,'span').get_attribute('innerText'))
     text.append(day[i].find_element(By.CLASS_NAME,'hover').find_element(By.CLASS_NAME,'info').find_element(By.CLASS_NAME,'extra').get_attribute('innerText'))
     image.append(day[i].find_element(By.CLASS_NAME,'icon').find_element(By.TAG_NAME,'span'))
-    image[i].screenshot('./freemeteo '+str(datetime.now()) +'/icon'+str(title[i])+'.png')
+    image[i].screenshot('/home/simeon/programming/Meteo/freemeteo/'+str(title[i])+' takenAt'+str(datetime.now()).replace(".",":")+'.png')
     # if len(tmax[i])==0:
     #     tmax[i].text="N/A"
  

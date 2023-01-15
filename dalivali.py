@@ -5,6 +5,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from datetime import date, datetime
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 
 options = Options()
@@ -16,7 +18,7 @@ driver.get(
      "https://www.dalivali.bg/?type=daily&location=173"
 )
 
-row,dayoftheweek,exdate,tmax,tmin,windspd,winddir,rainchance,rainvolume,cloud,sunrise,sundown,daylen,verbal,humidity,image = ( [] for i in range(16))
+row,dayoftheweek,exdate,tmax,tmin,windspd,winddir,rainchance,rainvolume,cloud,sunrise,sundown,daylen,verbal,humidity,img,image = ( [] for i in range(17))
 
 today = date.today().strftime("%d/%m/%Y") # dd/mm/YY
 print('Todays date is ' + today)
@@ -39,11 +41,14 @@ for i in range(0,9):
     winddir.append(day[i].find_element(By.ID,'info-num-wind1').get_attribute('innerText'))
     humidity.append(day[i].find_element(By.ID,'info-num-rain1').get_attribute('innerText'))
     verbal.append(day[i].find_element(By.ID,'descr-day1').get_attribute('innerText'))
-    #image.append(day[i].find_element(By.ID,'icon-next2').screenshot('./dali'+str(exdate[i])+'.png'))
-    image.append(day[i].find_element(By.ID,'icon-next2')) #.get_attribute('src'))
-    image[i].screenshot('./dali/dali'+str(exdate[i])+' '+str(hourMinute.hour)+':'+str(hourMinute.minute)+'.png')
+    
+    #img.append(day[i].find_element(By.ID,'icon-next2'))
+    #image.append((WebDriverWait(driver,5).until(EC.visibility_of_element_located((By.ID,'icon-next2')))))
+    
+    
+    #image[i].screenshot_as_base64('./dali'+str(exdate[i])+' '+str(hourMinute.hour)+':'+str(hourMinute.minute)+'.png')
 
 for i in range(0,9):    
-    print(image[i])
+    #print(image[i])
     print(dayoftheweek[i].ljust(11), ' ',exdate[i].ljust(11), ' ', tmax[i].ljust(11), ' ', tmin[i].ljust(11), ' ',
      windspd[i].ljust(11), ' ', winddir[i].ljust(11), ' ', humidity[i].ljust(11), ' ', verbal[i].ljust(11), ' ' )

@@ -32,7 +32,7 @@ print(len(day))
 print(str(datetime.now()).rsplit('.',1)[0])
 for i in range(0,7):
     title.append(day[i].find_element(By.CLASS_NAME,'title').find_element(By.TAG_NAME,'span').get_attribute('innerText')) #reaching furhter into the dom (gotta transform text to datetime)
-    #tmax.append(day[i].find_element(By.CLASS_NAME,'temps').find_elements(By.CSS_SELECTOR,'#content > div.right-col > div.weather-now > div.today.table > div > div > div:nth-child(2) > div.temps > b'))
+    
     try:
         tmax.append(day[i].find_element(By.CLASS_NAME,'temps').find_element(By.TAG_NAME,'b').get_attribute('innerText'))
     except NoSuchElementException:

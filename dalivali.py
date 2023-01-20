@@ -12,7 +12,7 @@ from selenium.webdriver.support import expected_conditions as EC
 options = Options()
 options.add_argument('--headless')
 options.add_experimental_option("excludeSwitches", ["enable-logging"])
-
+drvr=webdriver.Chrome(service=Service(ChromeDriverManager().install()),options=options)
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),options=options)
 driver.get(
      "https://www.dalivali.bg/?type=daily&location=173"
@@ -41,13 +41,12 @@ for i in range(0,9):
     winddir.append(day[i].find_element(By.ID,'info-num-wind1').get_attribute('innerText'))
     humidity.append(day[i].find_element(By.ID,'info-num-rain1').get_attribute('innerText'))
     verbal.append(day[i].find_element(By.ID,'descr-day1').get_attribute('innerText'))
-    
-    #img.append(day[i].find_element(By.ID,'icon-next2'))
-    #image.append((WebDriverWait(driver,5).until(EC.visibility_of_element_located((By.ID,'icon-next2')))))
-    
-    
-    #image[i].screenshot_as_base64('./dali'+str(exdate[i])+' '+str(hourMinute.hour)+':'+str(hourMinute.minute)+'.png')
 
+    img.append(day[i].find_element(By.ID,'icon-next2').get_attribute('src'))
+ 
+    drvr.get(img[i])
+    drvr.find_element(By.TAG_NAME,'svg').screenshot('./dalivali/forDate '+str(exdate[i])+' takenAt '+str(datetime.now()).replace(".",":")+'.png')
+    # img[i].screenshot('./dalivali/forDate '+str(exdate[i])+' takenAt '+str(datetime.now()).replace(".",":")+'.png')
 for i in range(0,9):    
     #print(image[i])
     print(dayoftheweek[i].ljust(11), ' ',exdate[i].ljust(11), ' ', tmax[i].ljust(11), ' ', tmin[i].ljust(11), ' ',

@@ -4,24 +4,22 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
 from datetime import date, datetime
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 
 options = Options()
 options.add_argument('--headless')
 options.add_experimental_option("excludeSwitches", ["enable-logging"])
-
+url="https://www.sinoptik.bg/plovdiv-bulgaria-100728193/10-days/"
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),options=options)
 driver.get(
      "https://www.sinoptik.bg/plovdiv-bulgaria-100728193/10-days/"
 )
 
+
+
 verbal=[]
-
-
 row=[]
-
 dayoftheweek=[]
 exdate=[]
 tmax=[]
@@ -33,7 +31,6 @@ rainvolume=[]
 cloud=[]
 sunrise=[]
 sundown=[]
-
 image=[]
 
 
@@ -51,7 +48,7 @@ for i in range(0,9):
     tmin.append(day[i].find_element(By.CLASS_NAME,'wf10dayRightTempLow').text)
     winddir.append(day[i].find_element(By.CLASS_NAME,'wf10dayRightWind').get_attribute('title'))
     windspd.append(day[i].find_element(By.CLASS_NAME,'wf10dayRightWind').text)
-    #verbal.append(day[i].find_element(By.CLASS_NAME,'wf10daysNotFullRC').find_element(By.TAG_NAME,'strong'))
+    verbal.append(day[i].find_element(By.CLASS_NAME,'wf10dayRightImg').get_attribute('title'))
     image.append(day[i].find_element(By.CLASS_NAME,'wf10dayRightImg'))
     image[i].screenshot('./sinoptik/forDate '+str(exdate[i])+' takenAt '+str(datetime.now()).replace(".",":")+'.png')
-    print(str(i),exdate[i],dayoftheweek[i],tmax[i],tmin[i],winddir[i],windspd[i])
+    print(str(i),exdate[i],dayoftheweek[i],tmax[i],tmin[i],winddir[i],windspd[i],verbal[i])

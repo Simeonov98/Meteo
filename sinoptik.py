@@ -32,7 +32,7 @@ cloud=[]
 sunrise=[]
 sundown=[]
 image=[]
-
+forecastDate=[]
 
 
 today = date.today()
@@ -50,5 +50,10 @@ for i in range(0,9):
     windspd.append(day[i].find_element(By.CLASS_NAME,'wf10dayRightWind').text)
     verbal.append(day[i].find_element(By.CLASS_NAME,'wf10dayRightImg').get_attribute('title'))
     image.append(day[i].find_element(By.CLASS_NAME,'wf10dayRightImg'))
+    dates=exdate[i].split('.')
+    forecastDate.append(datetime(datetime.now().year,int(dates[1]),int(dates[0])))
     image[i].screenshot('./sinoptik/forDate '+str(exdate[i])+' takenAt '+str(datetime.now()).replace(".",":")+'.png')
-    print(str(i),exdate[i],dayoftheweek[i],tmax[i],tmin[i],winddir[i],windspd[i],verbal[i])
+    print(str(i),forecastDate[i],forecastDate[i].weekday(),tmax[i].rstrip('°'),tmin[i].rstrip('°'),winddir[i],windspd[i],verbal[i])
+
+    #print(str(i),forecastDate[i], forecastDate[i].weekday())
+#print(forecastDate)

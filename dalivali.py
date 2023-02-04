@@ -18,7 +18,7 @@ driver.get(
      "https://www.dalivali.bg/?type=daily&location=173"
 )
 
-row,dayoftheweek,exdate,tmax,tmin,windspd,winddir,rainchance,rainvolume,cloud,sunrise,sundown,daylen,verbal,humidity,img,image = ( [] for i in range(17))
+row,dayoftheweek,exdate,tmax,tmin,windspd,winddir,rainchance,rainvolume,cloud,sunrise,sundown,daylen,verbal,humidity,img,image,forecastDate = ( [] for i in range(18))
 
 today = date.today().strftime("%d/%m/%Y") # dd/mm/YY
 print('Todays date is ' + today)
@@ -35,12 +35,14 @@ print('DayOfTheWeek'.ljust(10), ' ','Date'.ljust(10), ' ', 'MinTemp'.ljust(10), 
 for i in range(0,9):
     dayoftheweek.append(day[i].find_element(By.ID,'title-day1').get_attribute('innerText'))
     exdate.append(day[i].find_element(By.ID,'date1').get_attribute('innerText'))
-    tmax.append(day[i].find_element(By.ID,'tNday1').get_attribute('innerText'))
-    tmin.append(day[i].find_element(By.ID,'tDday1').get_attribute('innerText'))
+    tmax.append(day[i].find_element(By.ID,'tDday1').get_attribute('innerText'))
+    tmin.append(day[i].find_element(By.ID,'tNday1').get_attribute('innerText'))
     windspd.append(day[i].find_element(By.ID,'info-num-Spwind1').get_attribute('innerText'))
     winddir.append(day[i].find_element(By.ID,'info-num-wind1').get_attribute('innerText'))
     humidity.append(day[i].find_element(By.ID,'info-num-rain1').get_attribute('innerText'))
     verbal.append(day[i].find_element(By.ID,'descr-day1').get_attribute('innerText'))
+    dates=exdate[i].split('.')
+    forecastDate.append(datetime(int(dates[2]),int(dates[1]),int(dates[0])))
 
     img.append(day[i].find_element(By.ID,'icon-next2').get_attribute('src'))
  
@@ -49,5 +51,6 @@ for i in range(0,9):
     # img[i].screenshot('./dalivali/forDate '+str(exdate[i])+' takenAt '+str(datetime.now()).replace(".",":")+'.png')
 for i in range(0,9):    
     #print(image[i])
-    print(dayoftheweek[i].ljust(11), ' ',exdate[i].ljust(11), ' ', tmax[i].ljust(11), ' ', tmin[i].ljust(11), ' ',
-     windspd[i].ljust(11), ' ', winddir[i].ljust(11), ' ', humidity[i].ljust(11), ' ', verbal[i].ljust(11), ' ' )
+    #print(dayoftheweek[i].ljust(11), ' ',exdate[i].ljust(11), ' ', tmax[i].ljust(11), ' ', tmin[i].ljust(11), ' ',
+     #windspd[i].ljust(11), ' ', winddir[i].ljust(11), ' ', humidity[i].ljust(11), ' ', verbal[i].ljust(11), ' ' )
+    print(forecastDate[i],forecastDate[i].weekday(),tmax[i].rstrip('°'),tmin[i].rstrip('°'),windspd[i].rstrip(' м/с')+' m/s',winddir[i],humidity[i].rstrip('%'),verbal[i])

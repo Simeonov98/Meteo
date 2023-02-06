@@ -68,19 +68,20 @@ for i in range(0,7):
     try:
         tmax.append(day[i].find_element(By.CLASS_NAME,'temps').find_element(By.TAG_NAME,'b').get_attribute('innerText'))
     except NoSuchElementException:
-        tmax.append('макс: N/A') #here we append what the DB recognises as N/A or null
+        tmax.append('N/A') #here we append what the DB recognises as N/A or null
     tmin.append(day[i].find_element(By.CLASS_NAME,'temps').find_element(By.TAG_NAME,'span').get_attribute('innerText'))
     text.append(day[i].find_element(By.CLASS_NAME,'hover').find_element(By.CLASS_NAME,'info').find_element(By.CLASS_NAME,'extra').get_attribute('innerText'))
     wind.append((day[i].find_element(By.CLASS_NAME,'wind').find_element(By.TAG_NAME,'span').get_attribute('class')).rsplit(' ',1)[1])
-    rain.append(day[i].find_element(By.CLASS_NAME,'extra').find_element(By.TAG_NAME,'b').text)
+    try:
+        rain.append(day[i].find_element(By.CLASS_NAME,'extra').find_element(By.TAG_NAME,'b').text)
+    except NoSuchElementException:
+        rain.append('N/A')
     image.append(day[i].find_element(By.CLASS_NAME,'icon').find_element(By.TAG_NAME,'span'))
     image[i].screenshot('/home/simeon/programming/Meteo/freemeteo/'+str(title[i])+' takenAt'+str(datetime.now()).replace(".",":")+'.png')
     # if len(tmax[i])==0:
     #     tmax[i].text="N/A"
     argument=title[i].lstrip("0123456789 ")
     forecastDate.append(datetime(datetime.now().year,numbers_to_strings(argument),int(title[i].rstrip('януфевмарпйюилвгсоктд '))))
-    print(forecastDate[i],forecastDate[i].weekday(),tmax[i].replace('макс: ','').replace('°C',''),tmin[i].replace('мин: ','').replace('°C',''),text[i],wind[i],rain[i]+' mm')
- 
+    print(forecastDate[i],forecastDate[i].weekday(),tmax[i].replace('макс: ','').replace('°C',''),tmin[i].replace('мин: ','').replace('°C',''),text[i],wind[i],rain[i].replace(',','.'))
+    print(rain)
 driver.close()
-# url.removesuffix('.com')    # Returns 'abcdc'
-# url.removeprefix('abcdc.')  # Returns 'com'

@@ -60,6 +60,7 @@ forecastDate=[]
 dbstr=[]
 #print(day[0].find_element(By.CLASS_NAME,'temps').find_elements(By.CSS_SELECTOR,'#content > div.right-col > div.weather-now > div.today.table > div > div > div:nth-child(2) > div.temps > b'))
 # text=verbal[::2]
+now1=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 
 print(len(day))
@@ -70,7 +71,7 @@ for i in range(0,7):
     try:
         tmax.append(day[i].find_element(By.CLASS_NAME,'temps').find_element(By.TAG_NAME,'b').get_attribute('innerText'))
     except NoSuchElementException:
-        tmax.append('N/A') #here we append what the DB recognises as N/A or null
+        tmax.append('999') #here we append what the DB recognises as N/A or null
     tmin.append(day[i].find_element(By.CLASS_NAME,'temps').find_element(By.TAG_NAME,'span').get_attribute('innerText'))
     text.append(day[i].find_element(By.CLASS_NAME,'hover').find_element(By.CLASS_NAME,'info').find_element(By.CLASS_NAME,'extra').get_attribute('innerText'))
     wind.append((day[i].find_element(By.CLASS_NAME,'wind').find_element(By.TAG_NAME,'span').get_attribute('class')).rsplit(' ',1)[1])
@@ -86,7 +87,10 @@ for i in range(0,7):
     forecastDate.append(datetime(datetime.now().year,numbers_to_strings(argument),int(title[i].rstrip('януфевмарпйюилвгсоктд '))))
     print(forecastDate[i],forecastDate[i].weekday(),tmax[i].replace('макс: ','').replace('°C',''),tmin[i].replace('мин: ','').replace('°C',''),text[i],wind[i],rain[i].replace(',','.'))
     print(i)
-    dbstr.append(f"INSERT INTO Freemeteo (forecastDay, weekday, tmax, tmin, text, wdir, rain) VALUES ({forecastDate[i]},{forecastDate[i].weekday()},{tmax[i].replace('макс: ','').replace('°C','')},{tmin[i].replace('мин: ','').replace('°C','')},{text[i]},{wind[i]},{rain[i].replace(',','.')})")
+    dbstr.append(f"INSERT INTO Freemeteo (forecastDay, weekday, tmax, tmin, text, wdir, rain) VALUES ('{forecastDate[i]}',{forecastDate[i].weekday()},{tmax[i].replace('макс: ','').replace('°C','')},{tmin[i].replace('мин: ','').replace('°C','')},'{text[i]}','{wind[i]}',{rain[i].replace(',','.')})")
 driver.close()
 for x in range(len(dbstr)):
+    #print(dbstr[x])
     db.connect(dbstr[x])
+    print('success')
+#print (now1)

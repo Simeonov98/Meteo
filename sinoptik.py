@@ -6,6 +6,8 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from datetime import date, datetime
+import db
+
 
 options = Options()
 options.add_argument('--headless')
@@ -33,7 +35,7 @@ sunrise=[]
 sundown=[]
 image=[]
 forecastDate=[]
-
+dbstr=[]
 
 today = date.today()
 d1 = today.strftime("%d/%m/%Y") # dd/mm/YY

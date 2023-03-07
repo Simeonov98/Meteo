@@ -6,7 +6,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from datetime import date, datetime
-import db
+import db,hash,os
 
 # Function to convert number into string
 # Switcher is dictionary data type here
@@ -71,7 +71,7 @@ for i in range(0,7):
     try:
         tmax.append(day[i].find_element(By.CLASS_NAME,'temps').find_element(By.TAG_NAME,'b').get_attribute('innerText'))
     except NoSuchElementException:
-        tmax.append('999') #here we append what the DB recognises as N/A or null
+        tmax.append("NULL") #here we append what the DB recognises as N/A or null
     tmin.append(day[i].find_element(By.CLASS_NAME,'temps').find_element(By.TAG_NAME,'span').get_attribute('innerText'))
     text.append(day[i].find_element(By.CLASS_NAME,'hover').find_element(By.CLASS_NAME,'info').find_element(By.CLASS_NAME,'extra').get_attribute('innerText'))
     wind.append((day[i].find_element(By.CLASS_NAME,'wind').find_element(By.TAG_NAME,'span').get_attribute('class')).rsplit(' ',1)[1])
@@ -80,17 +80,22 @@ for i in range(0,7):
     except NoSuchElementException:
         rain.append('N/A')
     image.append(day[i].find_element(By.CLASS_NAME,'icon').find_element(By.TAG_NAME,'span'))
-    image[i].screenshot('/home/simeon/programming/Meteo/freemeteo/'+str(title[i])+' takenAt'+str(datetime.now()).replace(".",":")+'.png')
+    temp_imgname='/home/simeon/programming/Meteo/freemeteo/'+str(title[i])+' takenAt'+str(datetime.now()).replace(".",":")+'.png'
+    image[i].screenshot(temp_imgname)
+    if(os.path.exists('./freemeteo/'+temp_imgname)==False):#check in folder if temp_imgname exists
+        os.rename(temp_imgname,'./freemeteo/'+hash.getHash(temp_imgname)+'.png')
     # if len(tmax[i])==0:
     #     tmax[i].text="N/A"
+    
     argument=title[i].lstrip("0123456789 ")
     forecastDate.append(datetime(datetime.now().year,numbers_to_strings(argument),int(title[i].rstrip('януфевмарпйюилвгсоктд '))))
     print(forecastDate[i],forecastDate[i].weekday(),tmax[i].replace('макс: ','').replace('°C',''),tmin[i].replace('мин: ','').replace('°C',''),text[i],wind[i],rain[i].replace(',','.'))
     print(i)
     dbstr.append(f"INSERT INTO Freemeteo (forecastDay, weekday, tmax, tmin, text, wdir, rain) VALUES ('{forecastDate[i]}',{forecastDate[i].weekday()},{tmax[i].replace('макс: ','').replace('°C','')},{tmin[i].replace('мин: ','').replace('°C','')},'{text[i]}','{wind[i]}',{rain[i].replace(',','.')})")
+    # hash.getHash(temp_imgname)
 driver.close()
 for x in range(len(dbstr)):
     #print(dbstr[x])
-    db.connect(dbstr[x])
-    print('success')
+    db.push(dbstr[x])
+    print('success'+str(x))
 #print (now1)

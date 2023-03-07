@@ -54,3 +54,4 @@ for i in range(0,9):
     #print(dayoftheweek[i].ljust(11), ' ',exdate[i].ljust(11), ' ', tmax[i].ljust(11), ' ', tmin[i].ljust(11), ' ',
      #windspd[i].ljust(11), ' ', winddir[i].ljust(11), ' ', humidity[i].ljust(11), ' ', verbal[i].ljust(11), ' ' )
     print(forecastDate[i],forecastDate[i].weekday(),tmax[i].rstrip('°'),tmin[i].rstrip('°'),windspd[i].rstrip(' м/с')+' m/s',winddir[i],humidity[i].rstrip('%'),verbal[i])
+    

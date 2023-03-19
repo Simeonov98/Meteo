@@ -6,7 +6,10 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from datetime import date, datetime
-import db,hash,os
+import db,os,hash,operator
+from functools import reduce
+
+
 
 # Function to convert number into string
 # Switcher is dictionary data type here
@@ -57,7 +60,10 @@ text=[]
 wind=[]
 rain=[]
 forecastDate=[]
-dbstr=[]
+forecastDbStr=[]
+cityDbStr=[]
+ImageDbStr=[]
+formatted=[]
 #print(day[0].find_element(By.CLASS_NAME,'temps').find_elements(By.CSS_SELECTOR,'#content > div.right-col > div.weather-now > div.today.table > div > div > div:nth-child(2) > div.temps > b'))
 # text=verbal[::2]
 now1=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -67,35 +73,73 @@ print(len(day))
 
 print(str(datetime.now()).rsplit('.',1)[0])
 for i in range(0,7):
-    title.append(day[i].find_element(By.CLASS_NAME,'title').find_element(By.TAG_NAME,'span').get_attribute('innerText')) #reaching furhter into the dom (gotta transform text to datetime)
+    title.append(day[i].
+                 find_element(By.CLASS_NAME,'title').
+                 find_element(By.TAG_NAME,'span').
+                 get_attribute('innerText')) #reaching furhter into the dom (gotta transform text to datetime)
     try:
-        tmax.append(day[i].find_element(By.CLASS_NAME,'temps').find_element(By.TAG_NAME,'b').get_attribute('innerText'))
+        tmax.append(day[i].
+                    find_element(By.CLASS_NAME,'temps').
+                    find_element(By.TAG_NAME,'b').
+                    get_attribute('innerText'))
     except NoSuchElementException:
         tmax.append("NULL") #here we append what the DB recognises as N/A or null
-    tmin.append(day[i].find_element(By.CLASS_NAME,'temps').find_element(By.TAG_NAME,'span').get_attribute('innerText'))
-    text.append(day[i].find_element(By.CLASS_NAME,'hover').find_element(By.CLASS_NAME,'info').find_element(By.CLASS_NAME,'extra').get_attribute('innerText'))
-    wind.append((day[i].find_element(By.CLASS_NAME,'wind').find_element(By.TAG_NAME,'span').get_attribute('class')).rsplit(' ',1)[1])
+    tmin.append(day[i].
+                find_element(By.CLASS_NAME,'temps').
+                find_element(By.TAG_NAME,'span').
+                get_attribute('innerText'))
+    text.append(day[i].find_element(By.CLASS_NAME,'hover').
+                find_element(By.CLASS_NAME,'info').
+                find_element(By.CLASS_NAME,'extra').
+                get_attribute('innerText'))
+    wind.append((day[i].
+                 find_element(By.CLASS_NAME,'wind').
+                 find_element(By.TAG_NAME,'span').
+                 get_attribute('class')).
+                 rsplit(' ',1)[1])
     try:
-        rain.append(day[i].find_element(By.CLASS_NAME,'extra').find_element(By.TAG_NAME,'b').get_attribute('innerText'))
+        rain.append(day[i].
+                    find_element(By.CLASS_NAME,'extra').
+                    find_element(By.TAG_NAME,'b').
+                    get_attribute('innerText'))
     except NoSuchElementException:
         rain.append('N/A')
-    image.append(day[i].find_element(By.CLASS_NAME,'icon').find_element(By.TAG_NAME,'span'))
+    image.append(day[i].
+                 find_element(By.CLASS_NAME,'icon').
+                 find_element(By.TAG_NAME,'span'))
     temp_imgname='/home/simeon/programming/Meteo/freemeteo/'+str(title[i])+' takenAt'+str(datetime.now()).replace(".",":")+'.png'
     image[i].screenshot(temp_imgname)
-    if(os.path.exists('./freemeteo/'+temp_imgname)==False):#check in folder if temp_imgname exists
-        os.rename(temp_imgname,'./freemeteo/'+hash.getHash(temp_imgname)+'.png')
-    # if len(tmax[i])==0:
-    #     tmax[i].text="N/A"
+    hashedImgName=hash.getHash(temp_imgname)
+    if(os.path.exists('./freemeteo/'+hashedImgName)==False):#check in folder if temp_imgname exists
+        os.rename(temp_imgname,'./freemeteo/'+hashedImgName+'.png')
+        
+    image_data = hash.convertToBinaryData('./freemeteo/'+hashedImgName+'.png')
+    ImageDbStr.append(hashedImgName)
+    
     
     argument=title[i].lstrip("0123456789 ")
     forecastDate.append(datetime(datetime.now().year,numbers_to_strings(argument),int(title[i].rstrip('януфевмарпйюилвгсоктд '))))
     print(forecastDate[i],forecastDate[i].weekday(),tmax[i].replace('макс: ','').replace('°C',''),tmin[i].replace('мин: ','').replace('°C',''),text[i],wind[i],rain[i].replace(',','.'))
     print(i)
-    dbstr.append(f"INSERT INTO Freemeteo (forecastDay, weekday, tmax, tmin, text, wdir, rain) VALUES ('{forecastDate[i]}',{forecastDate[i].weekday()},{tmax[i].replace('макс: ','').replace('°C','')},{tmin[i].replace('мин: ','').replace('°C','')},'{text[i]}','{wind[i]}',{rain[i].replace(',','.')})")
-    # hash.getHash(temp_imgname)
+    forecastDbStr.append(f"INSERT INTO Freemeteo (forecastDay, weekday, tmax, tmin, text, wdir, rain, cityId, imageId) VALUES ('{forecastDate[i]}',{forecastDate[i].weekday()},{tmax[i].replace('макс: ','').replace('°C','')},{tmin[i].replace('мин: ','').replace('°C','')},'{text[i]}','{wind[i]}',{rain[i].replace(',','.')},{5},(SELECT id FROM Image WHERE name = '{hashedImgName}'))")
+    
 driver.close()
-for x in range(len(dbstr)):
-    #print(dbstr[x])
-    db.push(dbstr[x])
-    print('success'+str(x))
-#print (now1)
+print(db.select('SELECT * from City;'))
+print(ImageDbStr)
+
+
+
+imgres=db.select('SELECT DISTINCT name FROM Image;')
+formatted.append(list(reduce(operator.concat,imgres)))
+formatted=formatted.pop()
+# print(imgres)
+# print(formatted)
+# exit(); 00
+for img in ImageDbStr:
+    if img not in formatted:
+        db.insertBLOB(img,"/home/simeon/programming/Meteo/freemeteo/"+img+".png")
+for x in range(len(forecastDbStr)):
+    db.push(forecastDbStr[x])
+    print('success '+str(x))
+print(ImageDbStr)
+

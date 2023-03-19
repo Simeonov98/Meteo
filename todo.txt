@@ -1,9 +1,0 @@
-
-------------------
-
------------
-dependencies
-
-install selenium
-install webdriver_manager
-pip mysql-connector-python

@@ -7,6 +7,8 @@ from selenium.webdriver.common.by import By
 from datetime import date, datetime
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import hash,db,os,operator
+from functools import reduce
 
 
 options = Options()
@@ -19,6 +21,10 @@ driver.get(
 )
 
 row,dayoftheweek,exdate,tmax,tmin,windspd,winddir,rainchance,rainvolume,cloud,sunrise,sundown,daylen,verbal,humidity,img,image,forecastDate = ( [] for i in range(18))
+forecastDbStr=[]
+imageDbStr=[]
+imgFollowLink=[]
+formatted=[]
 
 today = date.today().strftime("%d/%m/%Y") # dd/mm/YY
 print('Todays date is ' + today)
@@ -47,11 +53,32 @@ for i in range(0,9):
     img.append(day[i].find_element(By.ID,'icon-next2').get_attribute('src'))
  
     drvr.get(img[i])
-    drvr.find_element(By.TAG_NAME,'svg').screenshot('./dalivali/forDate '+str(exdate[i])+' takenAt '+str(datetime.now()).replace(".",":")+'.png')
+    imgFollowLink.append(drvr.find_element(By.TAG_NAME,'svg'))
+    temp_imgname='./dalivali/forDate '+str(exdate[i])+' takenAt '+str(datetime.now()).replace(".",":")+'.png'
+    imgFollowLink[i].screenshot(temp_imgname)
+    hashedImgName=hash.getHash(temp_imgname)
+    if(os.path.exists('./dalivali/'+hashedImgName)==False):
+        os.rename(temp_imgname,'./dalivali/'+hashedImgName+'.png')
+    
+    image_data = hash.convertToBinaryData('./dalivali/'+hashedImgName+'.png')
+    imageDbStr.append(hashedImgName)
+
+    forecastDbStr.append(f"INSERT INTO Dalivali (forecastDay, weekday, tmax, tmin, wspd, wdir, humidity, text, cityId, imageId) VALUES ('{forecastDate[i]}','{forecastDate[i].weekday()}','{tmax[i].rstrip('°')}','{tmin[i].rstrip('°')}','{windspd[i].rstrip(' м/с')+' m/s'}','{winddir[i]}','{humidity[i].rstrip('%')}','{verbal[i]}',{5},(SELECT id FROM Image WHERE name = '{hashedImgName}'))")
+
+imgResources=db.select("SELECT DISTINCT name FROM Image;")
+formatted.append(list(reduce(operator.concat,imgResources)))
+formatted=formatted.pop()
+for img in imageDbStr:
+    if img not in formatted:
+        db.insertBLOB(img,"/home/simeon/programming/Meteo/dalivali/"+img+".png")
+
     # img[i].screenshot('./dalivali/forDate '+str(exdate[i])+' takenAt '+str(datetime.now()).replace(".",":")+'.png')
 for i in range(0,9):    
     #print(image[i])
     #print(dayoftheweek[i].ljust(11), ' ',exdate[i].ljust(11), ' ', tmax[i].ljust(11), ' ', tmin[i].ljust(11), ' ',
      #windspd[i].ljust(11), ' ', winddir[i].ljust(11), ' ', humidity[i].ljust(11), ' ', verbal[i].ljust(11), ' ' )
     print(forecastDate[i],forecastDate[i].weekday(),tmax[i].rstrip('°'),tmin[i].rstrip('°'),windspd[i].rstrip(' м/с')+' m/s',winddir[i],humidity[i].rstrip('%'),verbal[i])
-    
+for x in range(len(forecastDbStr)):
+    db.push(forecastDbStr[x])
+    print('success '+str(x))
+print(imageDbStr) 

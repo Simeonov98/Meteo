@@ -107,13 +107,13 @@ for i in range(0,7):
     image.append(day[i].
                  find_element(By.CLASS_NAME,'icon').
                  find_element(By.TAG_NAME,'span'))
-    temp_imgname='/home/simeon/programming/Meteo/freemeteo/'+str(title[i])+' takenAt'+str(datetime.now()).replace(".",":")+'.png'
+    temp_imgname='/home/simeon/programming/Meteo/freemeteo/takenAt.png'
     image[i].screenshot(temp_imgname)
     hashedImgName=hash.getHash(temp_imgname)
     if(os.path.exists('./freemeteo/'+hashedImgName)==False):#check in folder if temp_imgname exists
         os.rename(temp_imgname,'./freemeteo/'+hashedImgName+'.png')
         
-    image_data = hash.convertToBinaryData('./freemeteo/'+hashedImgName+'.png')
+    # image_data = hash.convertToBinaryData('./freemeteo/'+hashedImgName+'.png')
     ImageDbStr.append(hashedImgName)
     
     

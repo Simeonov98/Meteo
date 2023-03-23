@@ -44,6 +44,7 @@ today = date.today()
 d1 = today.strftime("%d/%m/%Y") # dd/mm/YY
 
 days=driver.find_element(By.CLASS_NAME,'wf10dayRightContent')
+days.screenshot('./sinoptik/wholepage.png')
 day=days.find_elements(By.TAG_NAME,'a')
 
 for i in range(0,9):
@@ -56,12 +57,12 @@ for i in range(0,9):
     verbal.append(day[i].find_element(By.CLASS_NAME,'wf10dayRightImg').get_attribute('title'))
     
     image.append(day[i].find_element(By.CLASS_NAME,'wf10dayRightImg'))
-    temp_imgname='./sinoptik/forDate '+str(exdate[i])+' takenAt '+str(datetime.now()).replace(".",":")+'.png'
+    temp_imgname='./sinoptik/forDate '+str(exdate[i])+' takenAt '+'.png'
     image[i].screenshot(temp_imgname)
     hashedImgName=hash.getHash(temp_imgname)
     if(os.path.exists('./sinoptik/'+hashedImgName)==False):
         os.rename(temp_imgname,'./sinoptik/'+hashedImgName+'.png')
-    image_data=hash.convertToBinaryData('./sinoptik/'+hashedImgName+'.png')
+    # image_data=hash.convertToBinaryData('./sinoptik/'+hashedImgName+'.png')
     imageDbStr.append(hashedImgName)
     
     dates=exdate[i].split('.')

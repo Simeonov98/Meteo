@@ -1,32 +1,18 @@
-from datetime import date, timedelta
-from bs4 import BeautifulSoup
-import requests
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
 
-url="https://weather.com/weather/tenday/l/dd44ead62bb77ca2b236bca92f752cac528e0114d5f41d1f1c0921136b603e09?unit=m"
+options = Options()
+options.add_argument('--headless')
+options.add_experimental_option("excludeSwitches", ["enable-logging"])
+url="https://www.sinoptik.bg/plovdiv-bulgaria-100728193/10-days/"
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),options=options)
+driver.get(
+     "https://www.sinoptik.bg/plovdiv-bulgaria-100728193/10-days/"
+)
 
-result = requests.get(url)
-doc = BeautifulSoup(result.text, "html.parser")
-
-arr=[]
-tempsmax=[]
-tempsmin=[]
-percip=[]
-wind=[]
-humidity=[]
-
-
-for x in range(0,14):
-    arr.append(doc.find(["details"], id="detailIndex"+str(x)))
-    tempsmax.append(arr[x].find("span"))
-    tempsmin.append(arr[x].find(["span"], class_="DetailsSummary--lowTempValue--3H-7I"))
-    percip.append(arr[x].find(["div"], class_="DetailsSummary--precip--1ecIJ"))
-    wind.append(arr[x].find(["span"],class_="Wind--windWrapper--3aqXJ undefined"))
-    humidity.append(arr[x].find(["span"],class_="DetailsTable--value--1q_qD"))
-
-
-    print("According to weather.com the high/low temperatures for " + str(date.today()+timedelta(days=x))+" are "+ tempsmax[x].text+"C/" 
-    + tempsmin[x].text+"C" + " and the rain chance is " + percip[x].find("span").text + 
-    " with winds " + wind[x].text +" and humidity " + humidity[x].text)
-  
-
-
+days=driver.find_element(By.CLASS_NAME,'wf10dayRightContent')
+day=days.find_elements(By.TAG_NAME,'a')

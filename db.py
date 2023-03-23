@@ -35,10 +35,13 @@ def readBLOB(id):
     print("Reading BLOB data from python_employee table")
 
     try:
-        connection = mysql.connector.connect(host='eu-west.connect.psdb.cloud',
-                                             database='meteo',
-                                             user='239y18k4x2lt2sbzolvq',
-                                             password='pscale_pw_MqYfqaVSUrhLMFei6Z2mkisiKL79pE9vOhpJIP5VmWE')
+        connection = mysql.connector.connect(
+            host=os.getenv("HOST"),
+            database=os.getenv("DATABASE"),
+            user=os.getenv("DB_USERNAME"),
+            password=os.getenv("PASSWORD"),
+            ssl_ca=os.getenv("SSL_CERT"), 
+            ssl_verify_identity=True)
 
         cursor = connection.cursor()
         sql_fetch_blob_query = """SELECT * from Image where id = %s"""
@@ -66,12 +69,13 @@ def readBLOB(id):
 def insertBLOB(name, photo):
     print("Inserting BLOB into python_employee table")
     try:
-        connection = mysql.connector.connect(host='eu-west.connect.psdb.cloud',
-                                             database='meteo',
-                                             user='239y18k4x2lt2sbzolvq',
-                                             password='pscale_pw_MqYfqaVSUrhLMFei6Z2mkisiKL79pE9vOhpJIP5VmWE')
-                                            #  ssl_certs='/etc/ssl/certs/ca-certificates.crt')
-
+        connection = mysql.connector.connect(
+            host=os.getenv("HOST"),
+            database=os.getenv("DATABASE"),
+            user=os.getenv("DB_USERNAME"),
+            password=os.getenv("PASSWORD"),
+            ssl_ca=os.getenv("SSL_CERT"), 
+            ssl_verify_identity=True)
         cursor = connection.cursor()
         sql_insert_blob_query = """ INSERT INTO Image
                           (name, src) VALUES (%s,%s)"""

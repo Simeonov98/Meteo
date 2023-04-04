@@ -67,7 +67,7 @@ def readBLOB(id):
             print("MySQL connection is closed")
 
 def insertBLOB(name, photo):
-    print("Inserting BLOB into python_employee table")
+    print("Inserting BLOB into Images table")
     try:
         connection = mysql.connector.connect(
             host=os.getenv("HOST"),
@@ -77,7 +77,7 @@ def insertBLOB(name, photo):
             ssl_ca=os.getenv("SSL_CERT"), 
             ssl_verify_identity=True)
         cursor = connection.cursor()
-        sql_insert_blob_query = """ INSERT INTO Image
+        sql_insert_blob_query = """ INSERT IGNORE INTO Image
                           (name, src) VALUES (%s,%s)"""
 
         empPicture = hash.convertToBinaryData(photo)
@@ -87,7 +87,7 @@ def insertBLOB(name, photo):
         insert_blob_tuple = (name, empPicture)
         result = cursor.execute(sql_insert_blob_query, insert_blob_tuple)
         connection.commit()
-        print("Image and file inserted successfully as a BLOB into python_employee table", result)
+        print("Image and file inserted successfully as a BLOB into Image table", result)
 
     except mysql.connector.Error as error:
         print("Failed inserting BLOB data into MySQL table {}".format(error))

@@ -1,15 +1,13 @@
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from datetime import date, datetime
 import db,os,hash,operator
+from chromedriver_py import binary_path
 from functools import reduce
-
-
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
+from selenium.webdriver.firefox.service import Service as FirefoxService
+from webdriver_manager.firefox import GeckoDriverManager
 
 # Function to convert number into string
 # Switcher is dictionary data type here
@@ -42,11 +40,18 @@ def numbers_to_strings(argument):
 #     print (numbers_to_strings(argument))
 
 
-options = Options()
-options.add_argument('--headless')
-options.add_experimental_option("excludeSwitches", ["enable-logging"])
+# options = Options()
+# options.add_argument('--headless=new')
+# options.add_experimental_option("excludeSwitches", ["enable-logging"])
 
-driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),options=options)
+
+
+
+options = FirefoxOptions()
+options.add_argument("--headless")
+driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()),options=options)
+
+#  driver = webdriver.Firefox()
 driver.get(
     "https://freemeteo.bg/weather/plovdiv/7-days/list/?gid=728193&language=bulgarian&country=bulgaria"
 )
@@ -110,7 +115,7 @@ for i in range(0,7):
     temp_imgname='/home/simeon/programming/Meteo/freemeteo/takenAt.png'
     image[i].screenshot(temp_imgname)
     hashedImgName=hash.getHash(temp_imgname)
-    if(os.path.exists('./freemeteo/'+hashedImgName)==False):#check in folder if temp_imgname exists
+    if not os.path.exists('./sinoptik/'+hashedImgName):#check in folder if temp_imgname exists
         os.rename(temp_imgname,'./freemeteo/'+hashedImgName+'.png')
         
     # image_data = hash.convertToBinaryData('./freemeteo/'+hashedImgName+'.png')
@@ -128,16 +133,8 @@ print(db.select('SELECT * from City;'))
 print(ImageDbStr)
 
 
-
-imgres=db.select('SELECT DISTINCT name FROM Image;')
-formatted.append(list(reduce(operator.concat,imgres)))
-formatted=formatted.pop()
-# print(imgres)
-# print(formatted)
-# exit(); 00
 for img in ImageDbStr:
-    if img not in formatted:
-        db.insertBLOB(img,"/home/simeon/programming/Meteo/freemeteo/"+img+".png")
+    db.insertBLOB(img,"/home/simeon/programming/Meteo/freemeteo/"+img+".png")
 for x in range(len(forecastDbStr)):
     db.push(forecastDbStr[x])
     print('success '+str(x))

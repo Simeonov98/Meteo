@@ -1,0 +1,6 @@
+webdriver_manager
+mysql-connector-python
+chromedriver-py==111.0.5563.64
+selenium
+
+# install google chrome stable for (whatever)

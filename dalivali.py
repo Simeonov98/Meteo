@@ -18,7 +18,7 @@ def run(url):
 
     options = FirefoxOptions()    
     options.add_argument('--headless')
-    options.add_experimental_option("excludeSwitches", ["enable-logging"])
+    #options.add_experimental_option("excludeSwitches", ["enable-logging"])
     drvr = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()),options=options)
     driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()),options=options)
 

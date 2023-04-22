@@ -128,7 +128,7 @@ def run(url):
         print(i)
         forecastDbStr.append(f"INSERT INTO Freemeteo (forecastDay, weekday, tmax, tmin, text, wdir, rain, cityId, imageId) VALUES ('{forecastDate[i]}',{forecastDate[i].weekday()},{tmax[i].replace('макс: ','').replace('°C','')},{tmin[i].replace('мин: ','').replace('°C','')},'{text[i]}','{wind[i]}',{rain[i].replace(',','.')},{5},(SELECT id FROM Image WHERE name = '{hashedImgName}'))")
 
-    driver.close()
+    #driver.close()
     print(db.select('SELECT * from City;'))
     print(ImageDbStr)
 

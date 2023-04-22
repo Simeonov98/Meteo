@@ -89,3 +89,5 @@ def run(url):
         db.push(forecastDbStr[x])
         print('success '+str(x))
     print(imageDbStr) 
+    drvr.close()
+    driver.close()

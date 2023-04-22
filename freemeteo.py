@@ -139,4 +139,4 @@ def run(url):
         db.push(forecastDbStr[x])
         print('success '+str(x))
     print(ImageDbStr)
-
+    driver.close()

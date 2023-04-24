@@ -61,11 +61,11 @@ def run(url):
         verbal.append(day[i].find_element(By.CLASS_NAME,'wf10dayRightImg').get_attribute('title'))
 
         image.append(day[i].find_element(By.CLASS_NAME,'wf10dayRightImg'))
-        temp_imgname='./sinoptik/forDate '+str(exdate[i])+' takenAt '+'.png'
+        temp_imgname='/home/simeon/programming/Meteo/sinoptik/forDate '+str(exdate[i])+' takenAt '+'.png'
         image[i].screenshot(temp_imgname)
         hashedImgName=hash.getHash(temp_imgname)
-        if not os.path.exists('./sinoptik/'+hashedImgName):
-            os.rename(temp_imgname,'./sinoptik/'+hashedImgName+'.png')
+        if not os.path.exists('/home/simeon/programming/Meteo/sinoptik/'+hashedImgName):
+            os.rename(temp_imgname,'/home/simeon/programming/Meteo/sinoptik/'+hashedImgName+'.png')
         # image_data=hash.convertToBinaryData('./sinoptik/'+hashedImgName+'.png')
         imageDbStr.append(hashedImgName)
         # print(exdate[i])

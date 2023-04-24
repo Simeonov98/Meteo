@@ -61,13 +61,13 @@ def run(url):
     
         drvr.get(img[i])
         imgFollowLink.append(drvr.find_element(By.TAG_NAME,'svg'))
-        temp_imgname='./dalivali/forDate '+str(exdate[i])+' takenAt '+str(datetime.now()).replace(".",":")+'.png'
+        temp_imgname='/home/simeon/programming/Meteo/dalivali/forDate '+str(exdate[i])+' takenAt '+str(datetime.now()).replace(".",":")+'.png'
         imgFollowLink[i].screenshot(temp_imgname)
         hashedImgName=hash.getHash(temp_imgname)
-        if(os.path.exists('./dalivali/'+hashedImgName)==False):
-            os.rename(temp_imgname,'./dalivali/'+hashedImgName+'.png')
+        if(os.path.exists('/home/simeon/programming/Meteo/dalivali/'+hashedImgName)==False):
+            os.rename(temp_imgname,'/home/simeon/programming/Meteo/dalivali/'+hashedImgName+'.png')
 
-        image_data = hash.convertToBinaryData('./dalivali/'+hashedImgName+'.png')
+        image_data = hash.convertToBinaryData('/home/simeon/programming/Meteo/dalivali/'+hashedImgName+'.png')
         imageDbStr.append(hashedImgName)
 
         forecastDbStr.append(f"INSERT INTO Dalivali (forecastDay, weekday, tmax, tmin, wspd, wdir, humidity, text, cityId, imageId) VALUES ('{forecastDate[i]}','{forecastDate[i].weekday()}','{tmax[i].rstrip('°')}','{tmin[i].rstrip('°')}','{windspd[i].rstrip(' м/с')+' m/s'}','{winddir[i]}','{humidity[i].rstrip('%')}','{verbal[i]}',{5},(SELECT id FROM Image WHERE name = '{hashedImgName}'))")

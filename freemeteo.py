@@ -115,8 +115,8 @@ def run(url):
         temp_imgname='/home/simeon/programming/Meteo/freemeteo/takenAt.png'
         image[i].screenshot(temp_imgname)
         hashedImgName=hash.getHash(temp_imgname)
-        if not os.path.exists('./sinoptik/'+hashedImgName):#check in folder if temp_imgname exists
-            os.rename(temp_imgname,'./freemeteo/'+hashedImgName+'.png')
+        if not os.path.exists('/home/simeon/programming/Meteo/sinoptik/'+hashedImgName):#check in folder if temp_imgname exists
+            os.rename(temp_imgname,'/home/simeon/programming/Meteo/freemeteo/'+hashedImgName+'.png')
 
         # image_data = hash.convertToBinaryData('./freemeteo/'+hashedImgName+'.png')
         ImageDbStr.append(hashedImgName)

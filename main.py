@@ -1,3 +1,4 @@
+#!/usr/bin python3
 import os,freemeteo,dalivali,sinoptik
 
 freemeteo.run("https://freemeteo.bg/weather/plovdiv/7-days/list/?gid=728193&language=bulgarian&country=bulgaria")

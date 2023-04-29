@@ -45,7 +45,7 @@ def run(url):
     print('DayOfTheWeek'.ljust(10), ' ','Date'.ljust(10), ' ', 'MinTemp'.ljust(10), ' ', 'MaxTemp'.ljust(10), ' ',
      'WindSpeed'.ljust(10), ' ', 'WindDir'.ljust(10), ' ', 'Humidity'.ljust(10), ' ', 'Decription'.ljust(10), ' ' )
 
-    for i in range(0,9):
+    for i in range(0,7):
         dayoftheweek.append(day[i].find_element(By.ID,'title-day1').get_attribute('innerText'))
         exdate.append(day[i].find_element(By.ID,'date1').get_attribute('innerText'))
         tmax.append(day[i].find_element(By.ID,'tDday1').get_attribute('innerText'))
@@ -80,7 +80,7 @@ def run(url):
             db.insertBLOB(img,"/home/simeon/programming/Meteo/dalivali/"+img+".png")
 
         # img[i].screenshot('./dalivali/forDate '+str(exdate[i])+' takenAt '+str(datetime.now()).replace(".",":")+'.png')
-    for i in range(0,9):    
+    for i in range(0,7):    
         #print(image[i])
         #print(dayoftheweek[i].ljust(11), ' ',exdate[i].ljust(11), ' ', tmax[i].ljust(11), ' ', tmin[i].ljust(11), ' ',
          #windspd[i].ljust(11), ' ', winddir[i].ljust(11), ' ', humidity[i].ljust(11), ' ', verbal[i].ljust(11), ' ' )

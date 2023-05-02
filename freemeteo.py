@@ -74,7 +74,7 @@ def run(url):
     now1=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 
-    print(len(day))
+    #print(len(day))
 
     print(str(datetime.now()).rsplit('.',1)[0])
     for i in range(0,7):
@@ -124,13 +124,12 @@ def run(url):
 
         argument=title[i].lstrip("0123456789 ")
         forecastDate.append(datetime(datetime.now().year,numbers_to_strings(argument),int(title[i].rstrip('януфевмарпйюилвгсоктд '))))
-        print(forecastDate[i],forecastDate[i].weekday(),tmax[i].replace('макс: ','').replace('°C',''),tmin[i].replace('мин: ','').replace('°C',''),text[i],wind[i],rain[i].replace(',','.'))
-        print(i)
+        #print(forecastDate[i],forecastDate[i].weekday(),tmax[i].replace('макс: ','').replace('°C',''),tmin[i].replace('мин: ','').replace('°C',''),text[i],wind[i],rain[i].replace(',','.'))
+        #print(i)
         forecastDbStr.append(f"INSERT INTO Freemeteo (forecastDay, weekday, tmax, tmin, text, wdir, rain, cityId, imageId) VALUES ('{forecastDate[i]}',{forecastDate[i].weekday()},{tmax[i].replace('макс: ','').replace('°C','')},{tmin[i].replace('мин: ','').replace('°C','')},'{text[i]}','{wind[i]}',{rain[i].replace(',','.')},{5},(SELECT id FROM Image WHERE name = '{hashedImgName}'))")
 
     #driver.close()
-    print(db.select('SELECT * from City;'))
-    print(ImageDbStr)
+    
 
 
     for img in ImageDbStr:
@@ -138,5 +137,6 @@ def run(url):
     for x in range(len(forecastDbStr)):
         db.push(forecastDbStr[x])
         print('success '+str(x))
+        print(str(datetime.now()).rsplit('.',1)[0])
     print(ImageDbStr)
     driver.close()

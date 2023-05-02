@@ -50,6 +50,7 @@ def run(url):
     days=driver.find_element(By.CLASS_NAME,'wf10dayRightContent')
     # days.screenshot('./sinoptik/wholepage.png')
     day=days.find_elements(By.TAG_NAME,'a')
+    print("sinoptik")
 
     for i in range(0,9):
         # dayoftheweek.append(day[i].find_element(By.CLASS_NAME,'wf10dayRightDay').get_attribute('innerHTML'))

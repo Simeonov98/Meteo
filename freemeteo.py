@@ -75,7 +75,7 @@ def run(url):
 
 
     #print(len(day))
-
+    print("freemeteo")
     print(str(datetime.now()).rsplit('.',1)[0])
     for i in range(0,7):
         title.append(day[i].

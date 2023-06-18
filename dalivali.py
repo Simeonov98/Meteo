@@ -13,7 +13,7 @@ from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.firefox import GeckoDriverManager
 
-def run(url):
+def run(url,cId):
 
 
     options = FirefoxOptions()    
@@ -70,7 +70,7 @@ def run(url):
         image_data = hash.convertToBinaryData('/home/simeon/programming/Meteo/dalivali/'+hashedImgName+'.png')
         imageDbStr.append(hashedImgName)
 
-        forecastDbStr.append(f"INSERT INTO Dalivali (forecastDay, weekday, tmax, tmin, wspd, wdir, humidity, text, cityId, imageId) VALUES ('{forecastDate[i]}','{forecastDate[i].weekday()}','{tmax[i].rstrip('°')}','{tmin[i].rstrip('°')}','{windspd[i].rstrip(' м/с')+' m/s'}','{winddir[i]}','{humidity[i].rstrip('%')}','{verbal[i]}',{5},(SELECT id FROM Image WHERE name = '{hashedImgName}'))")
+        forecastDbStr.append(f"INSERT INTO Dalivali (forecastDay, weekday, tmax, tmin, wspd, wdir, humidity, text, cityId, imageId) VALUES ('{forecastDate[i]}','{forecastDate[i].weekday()}','{tmax[i].rstrip('°')}','{tmin[i].rstrip('°')}','{windspd[i].rstrip(' м/с')+' m/s'}','{winddir[i]}','{humidity[i].rstrip('%')}','{verbal[i]}',{cId},(SELECT id FROM Image WHERE name = '{hashedImgName}'))")
 
     imgResources=db.select("SELECT DISTINCT name FROM Image;")
     formatted.append(list(reduce(operator.concat,imgResources)))

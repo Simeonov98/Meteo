@@ -12,7 +12,7 @@ from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.firefox import GeckoDriverManager
 
-def run(url):
+def run(url,cId):
     options = FirefoxOptions()
     options.add_argument("--headless")
     #url="https://www.sinoptik.bg/plovdiv-bulgaria-100728193/10-days/"
@@ -74,7 +74,7 @@ def run(url):
         forecastDate.append(datetime(datetime.now().year,int(dates[1]),int(dates[0])))
         # image[i].screenshot('./sinoptik/forDate '+str(exdate[i])+' takenAt '+str(datetime.now()).replace(".",":")+'.png')
         #print(str(i),forecastDate[i],forecastDate[i].weekday(),tmax[i].rstrip('°'),tmin[i].rstrip('°'),winddir[i],windspd[i],verbal[i])
-        forecastDbStr.append(f"INSERT INTO Sinoptik (forecastDate, weekday, tmax, tmin, wdir, wspd, text, cityId, imageId) VALUES ('{forecastDate[i]}','{forecastDate[i].weekday()}','{tmax[i].rstrip('°')}','{tmin[i].rstrip('°')}','{winddir[i]}','{windspd[i]}','{verbal[i]}',{5},(SELECT id FROM Image WHERE name = '{hashedImgName}'))");
+        forecastDbStr.append(f"INSERT INTO Sinoptik (forecastDate, weekday, tmax, tmin, wdir, wspd, text, cityId, imageId) VALUES ('{forecastDate[i]}','{forecastDate[i].weekday()}','{tmax[i].rstrip('°')}','{tmin[i].rstrip('°')}','{winddir[i]}','{windspd[i]}','{verbal[i]}',{cId},(SELECT id FROM Image WHERE name = '{hashedImgName}'))");
         #print(str(i),forecastDate[i], forecastDate[i].weekday())
     #print(forecastDate)
 

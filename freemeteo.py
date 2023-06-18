@@ -45,7 +45,7 @@ def numbers_to_strings(argument):
 # options.add_experimental_option("excludeSwitches", ["enable-logging"])
 
 
-def run(url):
+def run(url,cId):
 
     options = FirefoxOptions()
     options.add_argument("--headless")
@@ -126,7 +126,7 @@ def run(url):
         forecastDate.append(datetime(datetime.now().year,numbers_to_strings(argument),int(title[i].rstrip('януфевмарпйюилвгсоктд '))))
         #print(forecastDate[i],forecastDate[i].weekday(),tmax[i].replace('макс: ','').replace('°C',''),tmin[i].replace('мин: ','').replace('°C',''),text[i],wind[i],rain[i].replace(',','.'))
         #print(i)
-        forecastDbStr.append(f"INSERT INTO Freemeteo (forecastDay, weekday, tmax, tmin, text, wdir, rain, cityId, imageId) VALUES ('{forecastDate[i]}',{forecastDate[i].weekday()},{tmax[i].replace('макс: ','').replace('°C','')},{tmin[i].replace('мин: ','').replace('°C','')},'{text[i]}','{wind[i]}',{rain[i].replace(',','.')},{5},(SELECT id FROM Image WHERE name = '{hashedImgName}'))")
+        forecastDbStr.append(f"INSERT INTO Freemeteo (forecastDay, weekday, tmax, tmin, text, wdir, rain, cityId, imageId) VALUES ('{forecastDate[i]}',{forecastDate[i].weekday()},{tmax[i].replace('макс: ','').replace('°C','')},{tmin[i].replace('мин: ','').replace('°C','')},'{text[i]}','{wind[i]}',{rain[i].replace(',','.')},{cId},(SELECT id FROM Image WHERE name = '{hashedImgName}'))")
 
     #driver.close()
     

@@ -1,3 +1,4 @@
+import sys
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
@@ -124,6 +125,9 @@ def run(url,cId):
 
         argument=title[i].lstrip("0123456789 ")
         forecastDate.append(datetime(datetime.now().year,numbers_to_strings(argument),int(title[i].rstrip('януфевмарпйюилвгсоктд '))))
+        # print(argument)
+        # print(forecastDate)
+        # sys.exit()
         #print(forecastDate[i],forecastDate[i].weekday(),tmax[i].replace('макс: ','').replace('°C',''),tmin[i].replace('мин: ','').replace('°C',''),text[i],wind[i],rain[i].replace(',','.'))
         #print(i)
         forecastDbStr.append(f"INSERT INTO Freemeteo (forecastDay, weekday, tmax, tmin, text, wdir, rain, cityId, imageId) VALUES ('{forecastDate[i]}',{forecastDate[i].weekday()},{tmax[i].replace('макс: ','').replace('°C','')},{tmin[i].replace('мин: ','').replace('°C','')},'{text[i]}','{wind[i]}',{rain[i].replace(',','.')},{cId},(SELECT id FROM Image WHERE name = '{hashedImgName}'))")

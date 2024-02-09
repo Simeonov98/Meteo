@@ -1,3 +1,4 @@
+import sys
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
@@ -11,7 +12,28 @@ from functools import reduce
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.firefox import GeckoDriverManager
+def numbers_to_strings(argument):
+    switcher = {
+        'Януари': 1,
+        'Февруари': 2,
+        'Март': 3,
+        'Април': 4,
+        'Май': 5,
+        'Юни': 6,
+        'Юли': 7,
+        'Август': 8,
+        'Септември': 9,
+        'Октовмри': 10,
+        'Ноември': 11,
+        'Декември': 12,
 
+    }
+ 
+    # get() method of dictionary data type returns
+    # value of passed argument if it is present
+    # in dictionary otherwise second argument will
+    # be assigned as default value of passed argument
+    return switcher.get(argument, "nothing")
 def run(url,cId):
     options = FirefoxOptions()
     options.add_argument("--headless")
@@ -47,12 +69,12 @@ def run(url,cId):
     today = date.today()
     d1 = today.strftime("%d/%m/%Y") # dd/mm/YY
 
-    days=driver.find_element(By.CLASS_NAME,'wf10dayRightContent')
+    days=driver.find_element(By.CLASS_NAME,'wf14dayRightContent')
     # days.screenshot('./sinoptik/wholepage.png')
     day=days.find_elements(By.TAG_NAME,'a')
     print("sinoptik")
 
-    for i in range(0,9):
+    for i in range(0,7):
         # dayoftheweek.append(day[i].find_element(By.CLASS_NAME,'wf10dayRightDay').get_attribute('innerHTML'))
         exdate.append(day[i].find_element(By.CLASS_NAME,'wf10dayRightDate').get_attribute('innerHTML'))
         tmax.append(day[i].find_element(By.CLASS_NAME,'wf10dayRightTemp').text)
@@ -70,8 +92,12 @@ def run(url,cId):
         # image_data=hash.convertToBinaryData('./sinoptik/'+hashedImgName+'.png')
         imageDbStr.append(hashedImgName)
         # print(exdate[i])
-        dates=exdate[i].split('.')
-        forecastDate.append(datetime(datetime.now().year,int(dates[1]),int(dates[0])))
+        dates=exdate[i].split()
+        month=numbers_to_strings(exdate[i].split()[1]) # we have the month!!!
+        
+       
+        
+        forecastDate.append(datetime(datetime.now().year,int(month),int(dates[0])))
         # image[i].screenshot('./sinoptik/forDate '+str(exdate[i])+' takenAt '+str(datetime.now()).replace(".",":")+'.png')
         #print(str(i),forecastDate[i],forecastDate[i].weekday(),tmax[i].rstrip('°'),tmin[i].rstrip('°'),winddir[i],windspd[i],verbal[i])
         forecastDbStr.append(f"INSERT INTO Sinoptik (forecastDate, weekday, tmax, tmin, wdir, wspd, text, cityId, imageId) VALUES ('{forecastDate[i]}','{forecastDate[i].weekday()}','{tmax[i].rstrip('°')}','{tmin[i].rstrip('°')}','{winddir[i]}','{windspd[i]}','{verbal[i]}',{cId},(SELECT id FROM Image WHERE name = '{hashedImgName}'))");

@@ -7,25 +7,25 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from datetime import date, datetime
-import db,hash,os,operator
+import db2,hash,os,operator
 from functools import reduce
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.firefox import GeckoDriverManager
 def numbers_to_strings(argument):
     switcher = {
-        'Януари': 1,
-        'Февруари': 2,
-        'Март': 3,
-        'Април': 4,
-        'Май': 5,
-        'Юни': 6,
-        'Юли': 7,
-        'Август': 8,
-        'Септември': 9,
-        'Октовмри': 10,
-        'Ноември': 11,
-        'Декември': 12,
+        'януари': 1,
+        'февруари': 2,
+        'март': 3,
+        'април': 4,
+        'май': 5,
+        'юни': 6,
+        'юли': 7,
+        'август': 8,
+        'септември': 9,
+        'октовмри': 10,
+        'ноември': 11,
+        'декември': 12,
 
     }
  
@@ -93,6 +93,7 @@ def run(url,cId):
         imageDbStr.append(hashedImgName)
         # print(exdate[i])
         dates=exdate[i].split()
+        
         month=numbers_to_strings(exdate[i].split()[1]) # we have the month!!!
         
        
@@ -105,11 +106,12 @@ def run(url,cId):
     #print(forecastDate)
 
     for img in imageDbStr:
-        db.insertBLOB(img,"/home/simeon/programming/Meteo/sinoptik/"+img+".png")
+        db2.insertBLOB(img,"/home/simeon/programming/Meteo/sinoptik/"+img+".png")
 
     for x in range(len(forecastDbStr)):
-        db.push(forecastDbStr[x])
+        db2.push(forecastDbStr[x])
         print('success '+ str(x))
         print(str(datetime.now()).rsplit('.',1)[0])
     print(imageDbStr)
     driver.close()
+    # db2.close_conn()

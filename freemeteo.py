@@ -3,7 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from datetime import date, datetime
-import db,os,hash,operator
+import db2,os,hash,operator
 from chromedriver_py import binary_path
 from functools import reduce
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
@@ -135,12 +135,13 @@ def run(url,cId):
     #driver.close()
     
 
-
+    # db2.open_conn()
     for img in ImageDbStr:
-        db.insertBLOB(img,"/home/simeon/programming/Meteo/freemeteo/"+img+".png")
+        db2.insertBLOB(img,"/home/simeon/programming/Meteo/freemeteo/"+img+".png")
     for x in range(len(forecastDbStr)):
-        db.push(forecastDbStr[x])
+        db2.push(forecastDbStr[x])
         print('success '+str(x))
         print(str(datetime.now()).rsplit('.',1)[0])
     print(ImageDbStr)
     driver.close()
+    # db2.close_conn()

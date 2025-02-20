@@ -3,13 +3,35 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime, timedelta
-import os,db
+import os,db2
 from functools import reduce
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.firefox import GeckoDriverManager
 
 #https://dalivali.bg/?location=173
+
+from datetime import datetime, timedelta
+
+def get_weekday_datetime(day_name):
+    weekdays = ["Понеделник", "Вторник", "Сряда", "Четвъртък", "Петък", "Събота", "Неделя"]
+    today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    days_mapping = {day: i for i, day in enumerate(weekdays)}
+    days_mapping["Днес"] = today.weekday()
+    days_mapping["Утре"] = (today.weekday() + 1) % 7
+
+    target_weekday = days_mapping.get(day_name, None)
+    if target_weekday is None:
+        return None  # Invalid input
+
+    # Calculate the difference between today and the target weekday
+    days_difference = (target_weekday - today.weekday()) % 7
+    target_date = today + timedelta(days=days_difference)
+
+    # Return the datetime object
+    return target_date
+
+
 
 
 #converts the day name to a number
@@ -62,12 +84,13 @@ def run(url,cId):
         winddir.append(row.find_element(By.CLASS_NAME,'info-data').find_element(By.ID,'dr-today').get_attribute('innerText').split())
         humidity.append(row.find_element(By.CLASS_NAME,'info-data').find_element(By.ID,'rain-today').get_attribute('innerText'))
         #print(f"Row {i}: {row.text.split()[0]},windspd: {row.find_element(By.CLASS_NAME,'info-data').find_element(By.ID,'wind-today').get_attribute('innerText')+' м/с'},winddir: {row.find_element(By.CLASS_NAME,'info-data').find_element(By.ID,'dr-today').get_attribute('innerText').split()},tmin: {row.find_element(By.CLASS_NAME,'info-data').find_element(By.ID,'temp-today').get_attribute('innerText').split()[0]},tmax: {row.find_element(By.CLASS_NAME,'info-data').find_element(By.ID,'temp-today').get_attribute('innerText').split()[2]},humidity: {row.find_element(By.CLASS_NAME,'info-data').find_element(By.ID,'rain-today').get_attribute('innerText')}")
-        forecastDbStr.append(f"INSERT INTO Dalivali (forecastDay, weekday, tmax, tmin, wspd, wdir, humidity, text, cityId, imageId) VALUES ('{dayoftheweek[i]}','{get_weekday_number(dayoftheweek[i])}','{tmax[i]}','{tmin[i]}','{windspd[i]}','{winddir[i][0]}','{humidity[i]}','{cId}');")
+        forecastDbStr.append(f"""INSERT INTO "Dalivali" ("forecastDay", weekday, tmax, tmin, wspd, wdir, humidity, "cityId") VALUES ('{get_weekday_datetime(dayoftheweek[i])}','{get_weekday_number(dayoftheweek[i])}','{tmax[i]}','{tmin[i]}','{windspd[i]}','{winddir[i][0]}','{humidity[i]}','{cId}');""")
+
     #print(forecastDbStr)
 
     #pushes the data to the database
     for i in range(len(forecastDbStr)):
-        db.push(forecastDbStr[i]);
+        db2.push(forecastDbStr[i]);
         print('success '+str(i));
     driver.quit()
 

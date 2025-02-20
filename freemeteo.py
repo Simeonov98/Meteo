@@ -130,14 +130,15 @@ def run(url,cId):
         # sys.exit()
         #print(forecastDate[i],forecastDate[i].weekday(),tmax[i].replace('макс: ','').replace('°C',''),tmin[i].replace('мин: ','').replace('°C',''),text[i],wind[i],rain[i].replace(',','.'))
         #print(i)
-        forecastDbStr.append(f"INSERT INTO Freemeteo (forecastDay, weekday, tmax, tmin, text, wdir, rain, cityId, imageId) VALUES ('{forecastDate[i]}',{forecastDate[i].weekday()},{tmax[i].replace('макс: ','').replace('°C','')},{tmin[i].replace('мин: ','').replace('°C','')},'{text[i]}','{wind[i]}',{rain[i].replace(',','.')},{cId},(SELECT id FROM Image WHERE name = '{hashedImgName}'))")
+        #forecastDbStr.append(f"""INSERT INTO "Freemeteo" (forecastDay, weekday, tmax, tmin, text, wdir, rain, cityId, imageId) VALUES ('{forecastDate[i]}',{forecastDate[i].weekday()},{tmax[i].replace('макс: ','').replace('°C','')},{tmin[i].replace('мин: ','').replace('°C','')},'{text[i]}','{wind[i]}',{rain[i].replace(',','.')},{cId},(SELECT id FROM Image WHERE name = '{hashedImgName}')""")
+        forecastDbStr.append(f"""INSERT INTO "Freemeteo" ("forecastDay", weekday, tmax, tmin, text, wdir, rain, "cityId", "imageId") VALUES ('{forecastDate[i]}',{forecastDate[i].weekday()},{tmax[i].replace('макс: ','').replace('°C','')},{tmin[i].replace('мин: ','').replace('°C','')},'{text[i]}','{wind[i]}',{rain[i].replace(',','.')},{cId},(SELECT id FROM "Image" WHERE name = '{hashedImgName}'))""");
 
     #driver.close()
     
 
     # db2.open_conn()
-    for img in ImageDbStr:
-        db2.insertBLOB(img,"/home/simeon/programming/Meteo/freemeteo/"+img+".png")
+    # for img in ImageDbStr:
+        # db2.insertBLOB(img,"/home/simeon/programming/Meteo/freemeteo/"+img+".png")
     for x in range(len(forecastDbStr)):
         db2.push(forecastDbStr[x])
         print('success '+str(x))

@@ -20,12 +20,12 @@ connection = psycopg2.connect(
 )
 
 def push(query, params=None):
-#    try:
+    try:
         with connection.cursor() as cursor:
             cursor.execute(query, params)
             connection.commit()
-#    except Exception as e:
-#        print(f"Error executing query: {e}")
+    except Exception as e:
+        print(f"Error executing query: {e}")
 #        connection.rollback()
 def select(query, params=None):
 #    try:

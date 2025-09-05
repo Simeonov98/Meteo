@@ -15,3 +15,10 @@ icon25 септ.png
 icon16 окт.png
 image.png
 .env
+freemeteo/
+sinoptik/
+__pycache__/
+.vscode/
+dalivali/
+geckodriver.log
+.env.backup

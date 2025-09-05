@@ -10,23 +10,42 @@ import hash
 load_dotenv()
 
 # Establish connection to PostgreSQL database
-connection = psycopg2.connect(
-    host=os.getenv("HOST"),
-    database=os.getenv("DATABASE"),
-    user=os.getenv("DB_USERNAME"),
-    password=os.getenv("PASSWORD"),
-    sslmode='require',
-    sslrootcert=os.getenv("SSL_CERT")
-)
+# connection = psycopg2.connect(
+#     host=os.getenv("HOST"),
+#     database=os.getenv("DATABASE"),
+#     user=os.getenv("DB_USERNAME"),
+#     password=os.getenv("PASSWORD"),
+#     sslmode='require',
+#     sslrootcert=os.getenv("SSL_CERT")
+# )
+def get_connection():
+    return psycopg2.connect(
+        host=os.getenv("HOST"),
+        database=os.getenv("DATABASE"),
+        user=os.getenv("DB_USERNAME"),
+        password=os.getenv("PASSWORD"),
+        sslmode='require',
+        sslrootcert=os.getenv("SSL_CERT")
+    )
 
+# def push(query, params=None):
+#     try:
+#         with connection.cursor() as cursor:
+#             cursor.execute(query, params)
+#             connection.commit()
+#     except Exception as e:
+#         print(f"Error executing query: {e}")
+# #        connection.rollback()
 def push(query, params=None):
     try:
-        with connection.cursor() as cursor:
-            cursor.execute(query, params)
-            connection.commit()
+        with get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query,params)
+                conn.commit()
     except Exception as e:
-        print(f"Error executing query: {e}")
-#        connection.rollback()
+        print(f"Error exeuting query: {e}")
+
+
 def select(query, params=None):
 #    try:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:

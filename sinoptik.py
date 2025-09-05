@@ -7,7 +7,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from datetime import date, datetime
-import db2,hash,os,operator
+import db3,hash,os,operator
 from functools import reduce
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.firefox.service import Service as FirefoxService
@@ -110,7 +110,7 @@ def run(url,cId):
     #     db2.insertBLOB(img,"/home/simeon/programming/Meteo/sinoptik/"+img+".png")
 
     for x in range(len(forecastDbStr)):
-        db2.push(forecastDbStr[x])
+        db3.push(forecastDbStr[x])
         print('success '+ str(x))
         print(str(datetime.now()).rsplit('.',1)[0])
     print(imageDbStr)

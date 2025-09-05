@@ -3,7 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime, timedelta
-import os,db2
+import os,db3
 from functools import reduce
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.firefox.service import Service as FirefoxService
@@ -66,9 +66,10 @@ def run(url,cId):
     print(str(hourMinute.hour)+":"+str(hourMinute.minute))
     buttonAccept = driver.find_element(By.CSS_SELECTOR, ".fc-cta-consent");
     buttonAccept.click();
-    buttonForecast10 = driver.find_element(By.CSS_SELECTOR, "#content_router > div.global-dalivali > div:nth-child(1) > div:nth-child(2) > div > div.city-weather-content > div.buttons-forecast-wrap > div.btn-forecast.btn-daily");
-    buttonForecast10.click();
-    forecast_rows = driver.find_elements(By.CLASS_NAME, "row")
+    buttonForecast10 = driver.find_element(By.CSS_SELECTOR, "#content_router > div.global-dalivali > div:nth-child(1) > div:nth-child(1) > div > div.city-weather-content > div.forecast-wrap > div.forecast-box.box-daily");
+    
+    #buttonForecast10.click();
+    forecast_rows = buttonForecast10.find_elements(By.CLASS_NAME, "row")
 
     #print(f"Found {len(forecast_rows)} rows")
     
@@ -77,20 +78,23 @@ def run(url,cId):
     for i, row in enumerate(forecast_rows[2:]):
         if i>=7:
             break;
-        dayoftheweek.append(row.text.split()[0])
+        # dayoftheweek.append(row.text.split()[0])
+        dayoftheweek.append(row.find_element(By.CLASS_NAME,'day').get_attribute('innerText').split()[0])
         tmin.append(row.find_element(By.CLASS_NAME,'info-data').find_element(By.ID,'temp-today').get_attribute('innerText').split()[0])
+        # print(dayoftheweek[i],tmin[i])
+        # break
         tmax.append(row.find_element(By.CLASS_NAME,'info-data').find_element(By.ID,'temp-today').get_attribute('innerText').split()[2])
         windspd.append(row.find_element(By.CLASS_NAME,'info-data').find_element(By.ID,'wind-today').get_attribute('innerText')+' m/s')
         winddir.append(row.find_element(By.CLASS_NAME,'info-data').find_element(By.ID,'dr-today').get_attribute('innerText').split())
         humidity.append(row.find_element(By.CLASS_NAME,'info-data').find_element(By.ID,'rain-today').get_attribute('innerText'))
         #print(f"Row {i}: {row.text.split()[0]},windspd: {row.find_element(By.CLASS_NAME,'info-data').find_element(By.ID,'wind-today').get_attribute('innerText')+' м/с'},winddir: {row.find_element(By.CLASS_NAME,'info-data').find_element(By.ID,'dr-today').get_attribute('innerText').split()},tmin: {row.find_element(By.CLASS_NAME,'info-data').find_element(By.ID,'temp-today').get_attribute('innerText').split()[0]},tmax: {row.find_element(By.CLASS_NAME,'info-data').find_element(By.ID,'temp-today').get_attribute('innerText').split()[2]},humidity: {row.find_element(By.CLASS_NAME,'info-data').find_element(By.ID,'rain-today').get_attribute('innerText')}")
         forecastDbStr.append(f"""INSERT INTO "Dalivali" ("forecastDay", weekday, tmax, tmin, wspd, wdir, humidity, "cityId") VALUES ('{get_weekday_datetime(dayoftheweek[i])}','{get_weekday_number(dayoftheweek[i])}','{tmax[i]}','{tmin[i]}','{windspd[i]}','{winddir[i][0]}','{humidity[i]}','{cId}');""")
-
-    #print(forecastDbStr)
-
+        # break;
+    # print(forecastDbStr)
+    
     #pushes the data to the database
     for i in range(len(forecastDbStr)):
-        db2.push(forecastDbStr[i]);
+        db3.push(forecastDbStr[i]);
         print('success '+str(i));
     driver.quit()
 

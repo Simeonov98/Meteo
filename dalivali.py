@@ -7,7 +7,7 @@ from selenium.webdriver.common.by import By
 from datetime import date, datetime
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import hash,db,os,operator
+import hash,db2,os,operator
 from functools import reduce
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.firefox.service import Service as FirefoxService
@@ -72,12 +72,12 @@ def run(url,cId):
 
         forecastDbStr.append(f"INSERT INTO Dalivali (forecastDay, weekday, tmax, tmin, wspd, wdir, humidity, text, cityId, imageId) VALUES ('{forecastDate[i]}','{forecastDate[i].weekday()}','{tmax[i].rstrip('°')}','{tmin[i].rstrip('°')}','{windspd[i].rstrip(' м/с')+' m/s'}','{winddir[i]}','{humidity[i].rstrip('%')}','{verbal[i]}',{cId},(SELECT id FROM Image WHERE name = '{hashedImgName}'))")
 
-    imgResources=db.select("SELECT DISTINCT name FROM Image;")
+    imgResources=db2.select("SELECT DISTINCT name FROM Image;")
     formatted.append(list(reduce(operator.concat,imgResources)))
     formatted=formatted.pop()
     for img in imageDbStr:
         if img not in formatted:
-            db.insertBLOB(img,"/home/simeon/programming/Meteo/dalivali/"+img+".png")
+            db2.insertBLOB(img,"/home/simeon/programming/Meteo/dalivali/"+img+".png")
 
         # img[i].screenshot('./dalivali/forDate '+str(exdate[i])+' takenAt '+str(datetime.now()).replace(".",":")+'.png')
     #for i in range(0,7):    ## for for a print 
@@ -86,7 +86,7 @@ def run(url,cId):
          #windspd[i].ljust(11), ' ', winddir[i].ljust(11), ' ', humidity[i].ljust(11), ' ', verbal[i].ljust(11), ' ' )
         #print(forecastDate[i],forecastDate[i].weekday(),tmax[i].rstrip('°'),tmin[i].rstrip('°'),windspd[i].rstrip(' м/с')+' m/s',winddir[i],humidity[i].rstrip('%'),verbal[i])
     for x in range(len(forecastDbStr)):
-        db.push(forecastDbStr[x])
+        db2.push(forecastDbStr[x])
         print('success '+str(x))
     print(imageDbStr) 
     drvr.close()

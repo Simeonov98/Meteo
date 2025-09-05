@@ -1,0 +1,137 @@
+import sys
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
+from datetime import date, datetime
+import db2,os,hash,operator
+from chromedriver_py import binary_path
+from functools import reduce
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
+from selenium.webdriver.firefox.service import Service as FirefoxService
+from webdriver_manager.firefox import GeckoDriverManager
+
+# Function to convert number into string
+# Switcher is dictionary data type here
+def numbers_to_strings(argument):
+    switcher = {
+        'яну': 1,
+        'фев': 2,
+        'мар': 3,
+        'апр': 4,
+        'май': 5,
+        'юни': 6,
+        'юли': 7,
+        'авг': 8,
+        'сеп': 9,
+        'окт': 10,
+        'ное': 11,
+        'дек': 12,
+
+    }
+ 
+    # get() method of dictionary data type returns
+    # value of passed argument if it is present
+    # in dictionary otherwise second argument will
+    # be assigned as default value of passed argument
+    return switcher.get(argument, "nothing")
+ 
+
+
+def run(url,cId):
+
+    options = FirefoxOptions()
+    options.add_argument("--headless")
+    driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()),options=options)
+
+    #  driver = "https://freemeteo.bg/weather/plovdiv/7-days/list/?gid=728193&language=bulgarian&country=bulgaria"
+    driver.get(
+        url
+    )
+    row=[]
+    days=driver.find_elements(By.CSS_SELECTOR,'#root > div.w-full > div.relative.md\:pb-\[105\.89px\].pb-0 > section.weather-forecast.relative.wrapper.pb-4 > div > div.md\:pt-\[7px\].md\:pb-\[6px\].pt-3.pb-\[7px\].border-b.dark\:border-colorBorderDark.border-colorBorderLight')
+   
+    title=[]
+    image=[]
+    tmin=[]
+    tmax=[]
+    text=[]
+    wind=[]
+    rain=[]
+    forecastDate=[]
+    forecastDbStr=[]
+    cityDbStr=[]
+    ImageDbStr=[]
+    formatted=[]
+  
+    now1=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    for i in days:
+        tmax.append(days[i].find_element(By.CLASS_NAME,'MuiTypography-root MuiTypography-16/Regular flex justify-end w-[32px] text-base font-bold leading-[unset] css-1l41bgr'))
+    print(tmax)
+    exit()
+
+
+    #print(len(day))
+    print("freemeteo")
+    print(str(datetime.now()).rsplit('.',1)[0])
+    for i in range(0,7):
+        title.append(day[i].
+                     find_element(By.CLASS_NAME,'title').
+                     find_element(By.TAG_NAME,'span').
+                     get_attribute('innerText')) #reaching furhter into the dom (gotta transform text to datetime)
+        try:
+            tmax.append(day[i].
+                        find_element(By.CLASS_NAME,'temps').
+                        find_element(By.TAG_NAME,'b').
+                        get_attribute('innerText'))
+        except NoSuchElementException:
+            tmax.append("NULL") #here we append what the DB recognises as N/A or null
+        tmin.append(day[i].
+                    find_element(By.CLASS_NAME,'temps').
+                    find_element(By.TAG_NAME,'span').
+                    get_attribute('innerText'))
+        text.append(day[i].find_element(By.CLASS_NAME,'hover').
+                    find_element(By.CLASS_NAME,'info').
+                    find_element(By.CLASS_NAME,'extra').
+                    get_attribute('innerText'))
+        wind.append((day[i].
+                     find_element(By.CLASS_NAME,'wind').
+                     find_element(By.TAG_NAME,'span').
+                     get_attribute('class')).
+                     rsplit(' ',1)[1])
+        try:
+            rain.append(day[i].
+                        find_element(By.CLASS_NAME,'extra').
+                        find_element(By.TAG_NAME,'b').
+                        get_attribute('innerText'))
+        except NoSuchElementException:
+            rain.append('N/A')
+        image.append(day[i].
+                     find_element(By.CLASS_NAME,'icon').
+                     find_element(By.TAG_NAME,'span'))
+        temp_imgname='/home/simeon/programming/Meteo/freemeteo/takenAt.png'
+        image[i].screenshot(temp_imgname)
+        hashedImgName=hash.getHash(temp_imgname)
+        if not os.path.exists('/home/simeon/programming/Meteo/sinoptik/'+hashedImgName):#check in folder if temp_imgname exists
+            os.rename(temp_imgname,'/home/simeon/programming/Meteo/freemeteo/'+hashedImgName+'.png')
+
+        # image_data = hash.convertToBinaryData('./freemeteo/'+hashedImgName+'.png')
+        ImageDbStr.append(hashedImgName)
+
+
+        argument=title[i].lstrip("0123456789 ")
+        forecastDate.append(datetime(datetime.now().year,numbers_to_strings(argument),int(title[i].rstrip('януфевмарпйюилвгсоктд '))))
+        forecastDbStr.append(f"""INSERT INTO "Freemeteo" ("forecastDay", weekday, tmax, tmin, text, wdir, rain, "cityId", "imageId") VALUES ('{forecastDate[i]}',{forecastDate[i].weekday()},{tmax[i].replace('макс: ','').replace('°C','')},{tmin[i].replace('мин: ','').replace('°C','')},'{text[i]}','{wind[i]}',{rain[i].replace(',','.')},{cId},(SELECT id FROM "Image" WHERE name = '{hashedImgName}'))""");
+
+    #driver.close()
+    
+
+    # db2.open_conn()
+    # for img in ImageDbStr:
+        # db2.insertBLOB(img,"/home/simeon/programming/Meteo/freemeteo/"+img+".png")
+    for x in range(len(forecastDbStr)):
+        db2.push(forecastDbStr[x])
+        print('success '+str(x))
+        print(str(datetime.now()).rsplit('.',1)[0])
+    print(ImageDbStr)
+    driver.close()
+    # db2.close_conn()

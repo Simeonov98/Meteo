@@ -22,3 +22,4 @@ __pycache__/
 dalivali/
 geckodriver.log
 .env.backup
+geckodriver.log

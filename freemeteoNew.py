@@ -38,18 +38,6 @@ def numbers_to_strings(argument):
 
 
 def run(url,cId):
-
-    options = FirefoxOptions()
-    options.add_argument("--headless")
-    driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()),options=options)
-
-    #  driver = "https://freemeteo.bg/weather/plovdiv/7-days/list/?gid=728193&language=bulgarian&country=bulgaria"
-    driver.get(
-        url
-    )
-    row=[]
-    days=driver.find_elements(By.CSS_SELECTOR,'#root > div.w-full > div.relative.md\:pb-\[105\.89px\].pb-0 > section.weather-forecast.relative.wrapper.pb-4 > div > div.md\:pt-\[7px\].md\:pb-\[6px\].pt-3.pb-\[7px\].border-b.dark\:border-colorBorderDark.border-colorBorderLight')
-   
     title=[]
     image=[]
     tmin=[]
@@ -62,10 +50,62 @@ def run(url,cId):
     cityDbStr=[]
     ImageDbStr=[]
     formatted=[]
+    options = FirefoxOptions()
+    options.add_argument("--headless")
+    driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()),options=options)
+
+    #  driver = "https://freemeteo.bg/weather/plovdiv/7-days/list/?gid=728193&language=bulgarian&country=bulgaria"
+    driver.get(
+        url
+    )
+    row=[]
+    try:
+        driver.find_element(By.CLASS_NAME,'fc-button-label').click()
+    except:
+        pass
+    # days=driver.find_element(By.XPATH,'/html/body/div[3]/div[2]/section[2]/div/div[2]').get_attribute('innerText')
+    # days1=driver.find_element(By.XPATH,'/html/body/div[3]/div[2]/section[2]/div/div[3]').get_attribute('innerText')
+    # days2=driver.find_element(By.XPATH,'/html/body/div[3]/div[2]/section[2]/div/div[4]').get_attribute('innerText')
+    # days3=driver.find_element(By.XPATH,'/html/body/div[3]/div[2]/section[2]/div/div[5]').get_attribute('innerText')
+    # days4=driver.find_element(By.XPATH,'/html/body/div[3]/div[2]/section[2]/div/div[6]').get_attribute('innerText')
+    # days5=driver.find_element(By.XPATH,'/html/body/div[3]/div[2]/section[2]/div/div[7]').get_attribute('innerText')
+    # print(days,' ')
+    # print(days1,' ')
+    # print(days2,' ')
+    # print(days3,' ')
+    # print(days4,' ')
+    # print(days5,' ')
+    
+    # exit();
+    for i in range(3,8):
+        day=driver.find_element(By.XPATH,f'/html/body/div[3]/div[2]/section[2]/div/div[{i}]').get_attribute('innerText')
+        parts = [line.strip() for line in day.splitlines() if line.strip()]
+        print(parts)
+        if len(parts) > 1 and any(char.isdigit() for char in parts[1]):
+        # Day with date, e.g., ['Понеделник, 9 септ', 'частична заоблаченост.', ...]
+            forecastDate.append(parts[0])
+            text.append(parts[1])
+            tmax.append(parts[2])
+            tmin.append(parts[3])
+            wind.append(parts[4])
+            rain.append(parts[5])
+        else:
+            # No date, e.g., ['Днес', 'частична заоблаченост.', ...]
+            forecastDate.append(parts[0])
+            text.append(parts[1])
+            tmax.append(parts[2])
+            tmin.append(parts[3])
+            wind.append(parts[4])
+            rain.append(parts[5])
+    for i in range(0,5):
+        print(f'The day is: {forecastDate[i]}, the weather will be: {text[i]}, tmax: {tmax[i]}, tmin: {tmin[i]}, wind: {wind[i]}, rain: {rain[i]}')
+    exit();
+        
+  
   
     now1=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    for i in days:
-        tmax.append(days[i].find_element(By.CLASS_NAME,'MuiTypography-root MuiTypography-16/Regular flex justify-end w-[32px] text-base font-bold leading-[unset] css-1l41bgr'))
+    for i in range(0,5):
+        tmax.append(days[i].find_element(By.XPATH,'/html/body/div[3]/div[2]/section[2]/div/div[4]/a/div[3]/div[3]/div/span[1]').get_attribute('innerText'))
     print(tmax)
     exit()
 

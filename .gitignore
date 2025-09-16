@@ -23,3 +23,5 @@ dalivali/
 geckodriver.log
 .env.backup
 geckodriver.log
+.idea/
+package-lock.json

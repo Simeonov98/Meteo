@@ -2,8 +2,8 @@ import sys
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
-from datetime import date, datetime
-import db2,os,hash,operator
+from datetime import date, datetime, timedelta
+import db3,os,hash,operator
 from chromedriver_py import binary_path
 from functools import reduce
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
@@ -35,7 +35,14 @@ def numbers_to_strings(argument):
     # be assigned as default value of passed argument
     return switcher.get(argument, "nothing")
  
-
+def degrees_to_direction(degrees):
+    """Convert degrees to one of the 8 cardinal directions."""
+    directions = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw']
+    # Normalize degrees to [0, 360)
+    degrees = degrees % 360
+    # Each direction covers 45 degrees. Offset by 22.5 for center alignment.
+    index = int((degrees + 22.5) // 45) % 8
+    return directions[index]
 
 def run(url,cId):
     title=[]
@@ -58,120 +65,103 @@ def run(url,cId):
     driver.get(
         url
     )
-    row=[]
+    driver.implicitly_wait(3)
     try:
         driver.find_element(By.CLASS_NAME,'fc-button-label').click()
     except:
         pass
-    # days=driver.find_element(By.XPATH,'/html/body/div[3]/div[2]/section[2]/div/div[2]').get_attribute('innerText')
-    # days1=driver.find_element(By.XPATH,'/html/body/div[3]/div[2]/section[2]/div/div[3]').get_attribute('innerText')
-    # days2=driver.find_element(By.XPATH,'/html/body/div[3]/div[2]/section[2]/div/div[4]').get_attribute('innerText')
-    # days3=driver.find_element(By.XPATH,'/html/body/div[3]/div[2]/section[2]/div/div[5]').get_attribute('innerText')
-    # days4=driver.find_element(By.XPATH,'/html/body/div[3]/div[2]/section[2]/div/div[6]').get_attribute('innerText')
-    # days5=driver.find_element(By.XPATH,'/html/body/div[3]/div[2]/section[2]/div/div[7]').get_attribute('innerText')
-    # print(days,' ')
-    # print(days1,' ')
-    # print(days2,' ')
-    # print(days3,' ')
-    # print(days4,' ')
-    # print(days5,' ')
-    
-    # exit();
+#     svg_element = driver.find_element(By.XPATH, "/html/body/div[3]/div[2]/section[2]/div/div[1]").find_element(By.CSS_SELECTOR,"svg[data-testid='IcWindIcon']")
+
+# # Get the 'style' attribute as a string
+#     style_value = svg_element.get_attribute("style")
+#     print(style_value)
+#     exit();
+
+    # run the loop for every day and collect the data
     for i in range(3,8):
-        day=driver.find_element(By.XPATH,f'/html/body/div[3]/div[2]/section[2]/div/div[{i}]').get_attribute('innerText')
-        parts = [line.strip() for line in day.splitlines() if line.strip()]
-        print(parts)
-        if len(parts) > 1 and any(char.isdigit() for char in parts[1]):
-        # Day with date, e.g., ['Понеделник, 9 септ', 'частична заоблаченост.', ...]
-            forecastDate.append(parts[0])
-            text.append(parts[1])
-            tmax.append(parts[2])
-            tmin.append(parts[3])
-            wind.append(parts[4])
-            rain.append(parts[5])
+        day=driver.find_element(By.XPATH,f'/html/body/div[3]/div[2]/section[2]/div/div[{i}]')
+        svg=day.find_element(By.CSS_SELECTOR,"svg[data-testid='IcWindIcon']")
+        svgg=svg.get_attribute("style")
+        located_day=day.get_attribute('innerText')
+        degrees=svgg.split("rotate(")[1].split("deg)")[0]
+        splitBySpace=located_day.rsplit('\n')
+        # Remove empty strings
+        splitBySpace = [x for x in splitBySpace if x.strip()]
+        if splitBySpace[0] == 'Утре':
+            # Example: ['Утре', 'частична заоблаченост.', '29°', '17°', '8 км/ч', '0мм']
+            title.append('Утре')
+            text.append(splitBySpace[1])
+            tmax.append(splitBySpace[2])
+            tmin.append(splitBySpace[3])
+            wind.append(degrees_to_direction(float(degrees)))
+            rain.append(splitBySpace[5])
         else:
-            # No date, e.g., ['Днес', 'частична заоблаченост.', ...]
-            forecastDate.append(parts[0])
-            text.append(parts[1])
-            tmax.append(parts[2])
-            tmin.append(parts[3])
-            wind.append(parts[4])
-            rain.append(parts[5])
+            # Example: ['сряда', '10 09', 'частична заоблаченост.', '31°', '19°', '11 км/ч', '0мм']
+            title.append(f"{splitBySpace[0]}, {splitBySpace[1]}")
+            text.append(splitBySpace[2])
+            tmax.append(splitBySpace[3])
+            tmin.append(splitBySpace[4])
+            wind.append(degrees_to_direction(float(degrees)))
+            rain.append(splitBySpace[6])
     for i in range(0,5):
-        print(f'The day is: {forecastDate[i]}, the weather will be: {text[i]}, tmax: {tmax[i]}, tmin: {tmin[i]}, wind: {wind[i]}, rain: {rain[i]}')
-    exit();
+        res=''.join(title[i])
+        if res == "Утре":
+            tomorrow=datetime.now()+timedelta(days=1)
+            parsed_date_tomorrow = datetime(datetime.now().year,datetime.now().month,tomorrow.day)
+            #print(parsed_date_tomorrow)
+            forecastDate.append(parsed_date_tomorrow)
+        else:
+            res_list=res.split(', ')
+            parsed_date = datetime.strptime(res_list[1], "%d %m")
+            parsed_date = parsed_date.replace(year=datetime.now().year)
+            #print(parsed_date)
+            forecastDate.append(parsed_date)
+        print(forecastDate[i],forecastDate[i].weekday(),tmax[i].rstrip('°'),tmin[i].rstrip('°'),text[i],wind[i],rain[i].replace(',','.').rstrip('мм'))
+        # forecastDbStr.append(f"""INSERT INTO "Freemeteo" ("forecastDay", weekday, tmax, tmin, text, wdir, rain, "cityId", "imageId") VALUES ('{forecastDate[i]}',{forecastDate[i].weekday()},{tmax[i].rstrip('°')},{tmin[i].rstrip('°')},'{text[i]}','{wind[i]}',{rain[i].replace(',','.').rstrip('мм')},{cId},(SELECT id FROM "Image" WHERE name = '{hashedImgName}'))""");
+        forecastDbStr.append(f"""INSERT INTO "Freemeteo" ("forecastDay", weekday, tmax, tmin, text, wdir, rain, "cityId") VALUES ('
+                             {forecastDate[i]}',{forecastDate[i].weekday()},{tmax[i].rstrip('°')},{tmin[i].rstrip('°')},'{text[i]}','{wind[i]}',{rain[i].replace(',','.').rstrip('мм')},{cId})""");
+
+    driver.close()
+    # exit();
         
   
   
     now1=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    for i in range(0,5):
-        tmax.append(days[i].find_element(By.XPATH,'/html/body/div[3]/div[2]/section[2]/div/div[4]/a/div[3]/div[3]/div/span[1]').get_attribute('innerText'))
-    print(tmax)
-    exit()
+
 
 
     #print(len(day))
     print("freemeteo")
     print(str(datetime.now()).rsplit('.',1)[0])
-    for i in range(0,7):
-        title.append(day[i].
-                     find_element(By.CLASS_NAME,'title').
-                     find_element(By.TAG_NAME,'span').
-                     get_attribute('innerText')) #reaching furhter into the dom (gotta transform text to datetime)
-        try:
-            tmax.append(day[i].
-                        find_element(By.CLASS_NAME,'temps').
-                        find_element(By.TAG_NAME,'b').
-                        get_attribute('innerText'))
-        except NoSuchElementException:
-            tmax.append("NULL") #here we append what the DB recognises as N/A or null
-        tmin.append(day[i].
-                    find_element(By.CLASS_NAME,'temps').
-                    find_element(By.TAG_NAME,'span').
-                    get_attribute('innerText'))
-        text.append(day[i].find_element(By.CLASS_NAME,'hover').
-                    find_element(By.CLASS_NAME,'info').
-                    find_element(By.CLASS_NAME,'extra').
-                    get_attribute('innerText'))
-        wind.append((day[i].
-                     find_element(By.CLASS_NAME,'wind').
-                     find_element(By.TAG_NAME,'span').
-                     get_attribute('class')).
-                     rsplit(' ',1)[1])
-        try:
-            rain.append(day[i].
-                        find_element(By.CLASS_NAME,'extra').
-                        find_element(By.TAG_NAME,'b').
-                        get_attribute('innerText'))
-        except NoSuchElementException:
-            rain.append('N/A')
-        image.append(day[i].
-                     find_element(By.CLASS_NAME,'icon').
-                     find_element(By.TAG_NAME,'span'))
-        temp_imgname='/home/simeon/programming/Meteo/freemeteo/takenAt.png'
-        image[i].screenshot(temp_imgname)
-        hashedImgName=hash.getHash(temp_imgname)
-        if not os.path.exists('/home/simeon/programming/Meteo/sinoptik/'+hashedImgName):#check in folder if temp_imgname exists
-            os.rename(temp_imgname,'/home/simeon/programming/Meteo/freemeteo/'+hashedImgName+'.png')
 
-        # image_data = hash.convertToBinaryData('./freemeteo/'+hashedImgName+'.png')
-        ImageDbStr.append(hashedImgName)
+        # image.append(day[i].
+        #              find_element(By.CLASS_NAME,'icon').
+        #              find_element(By.TAG_NAME,'span'))
+        # temp_imgname='/home/simeon/programming/Meteo/freemeteo/takenAt.png'
+        # image[i].screenshot(temp_imgname)
+        # hashedImgName=hash.getHash(temp_imgname)
+        # if not os.path.exists('/home/simeon/programming/Meteo/freemeteo/'+hashedImgName):#check in folder if temp_imgname exists
+        #     os.rename(temp_imgname,'/home/simeon/programming/Meteo/freemeteo/'+hashedImgName+'.png')
+
+        # # image_data = hash.convertToBinaryData('./freemeteo/'+hashedImgName+'.png')
+        # ImageDbStr.append(hashedImgName)
 
 
-        argument=title[i].lstrip("0123456789 ")
-        forecastDate.append(datetime(datetime.now().year,numbers_to_strings(argument),int(title[i].rstrip('януфевмарпйюилвгсоктд '))))
-        forecastDbStr.append(f"""INSERT INTO "Freemeteo" ("forecastDay", weekday, tmax, tmin, text, wdir, rain, "cityId", "imageId") VALUES ('{forecastDate[i]}',{forecastDate[i].weekday()},{tmax[i].replace('макс: ','').replace('°C','')},{tmin[i].replace('мин: ','').replace('°C','')},'{text[i]}','{wind[i]}',{rain[i].replace(',','.')},{cId},(SELECT id FROM "Image" WHERE name = '{hashedImgName}'))""");
+        # argument=title[i].lstrip("0123456789 ")
+
+    # forecastDate.append(datetime(datetime.now().year,numbers_to_strings(argument),int(title[i].rstrip('януфевмарпйюилвгсоктд '))))
+    # forecastDbStr.append(f"""INSERT INTO "Freemeteo" ("forecastDay", weekday, tmax, tmin, text, wdir, rain, "cityId", "imageId") VALUES ('{forecastDate[i]}',{forecastDate[i].weekday()},{tmax[i].replace('макс: ','').replace('°C','')},{tmin[i].replace('мин: ','').replace('°C','')},'{text[i]}','{wind[i]}',{rain[i].replace(',','.')},{cId},(SELECT id FROM "Image" WHERE name = '{hashedImgName}'))""");
 
     #driver.close()
     
 
-    # db2.open_conn()
+    # db3.open_conn()
     # for img in ImageDbStr:
         # db2.insertBLOB(img,"/home/simeon/programming/Meteo/freemeteo/"+img+".png")
     for x in range(len(forecastDbStr)):
-        db2.push(forecastDbStr[x])
+        db3.push(forecastDbStr[x])
         print('success '+str(x))
         print(str(datetime.now()).rsplit('.',1)[0])
     print(ImageDbStr)
-    driver.close()
-    # db2.close_conn()
+    # driver.close()
+    # db3.close_conn()

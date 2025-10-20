@@ -66,12 +66,8 @@ def run(url,cId):
     print(str(hourMinute.hour)+":"+str(hourMinute.minute))
     buttonAccept = driver.find_element(By.CSS_SELECTOR, ".fc-cta-consent");
     buttonAccept.click();
-<<<<<<< HEAD
-    buttonForecast10 = driver.find_element(By.CSS_SELECTOR, "#content_router > div.global-dalivali > div:nth-child(1) > div:nth-child(2) > div > div.city-weather-content > div.forecast-wrap > div.forecast-box.box-daily");
-=======
     driver.implicitly_wait(2)
     buttonForecast10 = driver.find_element(By.XPATH, "/html/body/div[2]/div/div/div[2]/div[1]/div[2]/div/div[2]/div[3]/div[2]");
->>>>>>> 4f25b3d (implicit wait on dalivali2)
     
     #buttonForecast10.click();
     forecast_rows = buttonForecast10.find_elements(By.CLASS_NAME, "row")

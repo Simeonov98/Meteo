@@ -5,7 +5,7 @@ their own (slightly inconsistent) copies of these lookups.
 
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 
 WEEKDAYS_BG = [
     "Понеделник",
@@ -68,9 +68,3 @@ def next_occurrence_of_weekday(day_name: str, today: date | None = None) -> date
     target = weekday_index(day_name, today)
     days_ahead = (target - today.weekday()) % 7
     return today + timedelta(days=days_ahead)
-
-
-def parse_tomorrow_label(today: datetime | None = None) -> datetime:
-    """freemeteo labels the first row 'Утре' (tomorrow) instead of a date."""
-    today = today or datetime.now()
-    return today + timedelta(days=1)

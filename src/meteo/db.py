@@ -61,11 +61,11 @@ def close_pool() -> None:
 
 def insert_freemeteo(rows: Iterable[FreemeteoForecast]) -> int:
     query = """
-        INSERT INTO "Freemeteo" ("forecastDay", weekday, tmax, tmin, text, wdir, rain, "cityId")
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO "Freemeteo" ("forecastDay", weekday, tmax, tmin, text, wdir, rain, "cityId", "imageId")
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
     params = [
-        (r.forecast_day, r.weekday, r.tmax, r.tmin, r.text, r.wdir, r.rain, r.city_id)
+        (r.forecast_day, r.weekday, r.tmax, r.tmin, r.text, r.wdir, r.rain, r.city_id, r.image_id)
         for r in rows
     ]
     with cursor() as cur:
@@ -76,11 +76,11 @@ def insert_freemeteo(rows: Iterable[FreemeteoForecast]) -> int:
 
 def insert_dalivali(rows: Iterable[DalivaliForecast]) -> int:
     query = """
-        INSERT INTO "Dalivali" ("forecastDay", weekday, tmax, tmin, wspd, wdir, humidity, "cityId")
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO "Dalivali" ("forecastDay", weekday, tmax, tmin, wspd, wdir, humidity, text, "cityId", "imageId")
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
     params = [
-        (r.forecast_day, r.weekday, r.tmax, r.tmin, r.wspd, r.wdir, r.humidity, r.city_id)
+        (r.forecast_day, r.weekday, r.tmax, r.tmin, r.wspd, r.wdir, r.humidity, r.text, r.city_id, r.image_id)
         for r in rows
     ]
     with cursor() as cur:
@@ -91,11 +91,11 @@ def insert_dalivali(rows: Iterable[DalivaliForecast]) -> int:
 
 def insert_sinoptik(rows: Iterable[SinoptikForecast]) -> int:
     query = """
-        INSERT INTO "Sinoptik" ("forecastDate", weekday, tmax, tmin, wdir, wspd, text, "cityId")
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO "Sinoptik" ("forecastDate", weekday, tmax, tmin, wdir, wspd, text, "cityId", "imageId")
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
     params = [
-        (r.forecast_date, r.weekday, r.tmax, r.tmin, r.wdir, r.wspd, r.text, r.city_id)
+        (r.forecast_date, r.weekday, r.tmax, r.tmin, r.wdir, r.wspd, r.text, r.city_id, r.image_id)
         for r in rows
     ]
     with cursor() as cur:

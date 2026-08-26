@@ -11,6 +11,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date
 
+# "imageId" is NOT NULL on all three tables but nothing populates a real
+# Image row per forecast (see docs/image-capture.md for why, and how to
+# properly wire one up later). 0 is a safe placeholder: there's no foreign
+# key on imageId, so it doesn't need to reference a real Image row.
+NO_IMAGE_ID = 0
+
 
 @dataclass
 class FreemeteoForecast:
@@ -20,8 +26,9 @@ class FreemeteoForecast:
     tmin: float
     text: str
     wdir: str
-    rain: float
+    rain: str
     city_id: int
+    image_id: int = NO_IMAGE_ID
 
 
 @dataclass
@@ -33,7 +40,9 @@ class DalivaliForecast:
     wspd: str
     wdir: str
     humidity: str
+    text: str
     city_id: int
+    image_id: int = NO_IMAGE_ID
 
 
 @dataclass
@@ -46,3 +55,4 @@ class SinoptikForecast:
     wspd: str
     text: str
     city_id: int
+    image_id: int = NO_IMAGE_ID

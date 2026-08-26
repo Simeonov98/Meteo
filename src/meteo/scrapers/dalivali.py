@@ -34,6 +34,7 @@ def _parse_row(row) -> dict:
     wind_speed = row.find_element(By.CLASS_NAME, "info-data").find_element(By.ID, "wind-today")
     wind_dir = row.find_element(By.CLASS_NAME, "info-data").find_element(By.ID, "dr-today")
     humidity = row.find_element(By.CLASS_NAME, "info-data").find_element(By.ID, "rain-today")
+    text = row.find_element(By.CLASS_NAME, "icon-forecast").find_element(By.TAG_NAME, "img")
 
     return {
         "day_name": day_name,
@@ -42,6 +43,7 @@ def _parse_row(row) -> dict:
         "wind_speed": f"{wind_speed.get_attribute('innerText')} m/s",
         "wind_dir": wind_dir.get_attribute("innerText").split()[0],
         "humidity": humidity.get_attribute("innerText"),
+        "text": text.get_attribute("title"),
     }
 
 
@@ -67,6 +69,7 @@ def scrape(driver, url: str, city_id: int) -> list[DalivaliForecast]:
                 wspd=parsed["wind_speed"],
                 wdir=parsed["wind_dir"],
                 humidity=parsed["humidity"],
+                text=parsed["text"],
                 city_id=city_id,
             )
         )

@@ -132,21 +132,22 @@ All 9 combinations (3 cities × 3 sources) run end-to-end and write real
 rows to Postgres — verified live, not just unit tests. Unit tests
 (`pytest`, 21 tests) also pass.
 
-## 5. Not yet committed
+## 5. Commit history on `v2`
 
-These files have fixes from section 3 but are **still uncommitted** on
-`v2` as of this note (check `git status` — this will go stale the moment
-you commit):
+All fixes from section 3, plus this doc, are committed locally on `v2` as
+of commit `359979a`:
 ```
-pyproject.toml
-src/meteo/browser.py
-src/meteo/db.py
-src/meteo/models.py
-src/meteo/scrapers/dalivali.py
-src/meteo/scrapers/freemeteo.py
-src/meteo/utils.py
-docs/  (new, untracked)
+359979a Fix local driver setup and real DB/scraping bugs found in live testing
+7578017 Comment out scheduled cron job in GitHub Actions workflow
+f3d0699 Add hourly GitHub Actions workflow to run the scraper
+e02ad55 Rewrite project as installable package (v2)
 ```
+**Nothing has been pushed to `origin` (GitHub) yet** — everything above is
+local-only. `main` is untouched throughout.
+
+Re-verified after committing `359979a`: `pytest` (21/21 passing) and a
+full `python main.py --city sofia` run (all 3 sources) both still succeed
+against live Postgres — the commit didn't introduce any regression.
 
 ## 6. Loose ends worth knowing about, not yet addressed
 

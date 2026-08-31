@@ -218,6 +218,15 @@ somewhere else* (a different DB, a different IP geolocation) — worth
 remembering as a category of bug distinct from "the site changed" or "the
 code has a mistake."
 
+**Context on why this ran at all**: the hourly `schedule:` trigger — off
+since commit `7578017` — was turned back on directly on GitHub
+(`b426ea7 emable GH workflow`, 2026-08-31 17:44 local), which is what
+produced the failing run above about 3 minutes later. **It's currently
+live and firing every hour.** The fix commit for both bugs above
+(`e9fb999`) is only local as of this note — `git status` shows local
+`main` 1 commit ahead of `origin/main` — so every hourly run until it's
+pushed will keep failing the same way.
+
 ## 7. Loose ends worth knowing about, not yet addressed
 
 - **`Dalivali.humidity` and `Freemeteo.rain` type coercion**: both are

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
@@ -22,9 +23,16 @@ _ROWS_TO_READ = 7
 
 
 def _dismiss_consent(driver) -> None:
-    WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, _CONSENT_BUTTON_SELECTOR))
-    ).click()
+    # Some consent-management setups only show this banner for EU/UK-geolocated
+    # visitors -- it never appeared at all from a US-based GitHub Actions
+    # runner, which turned a 10s wait into an unhandled crash. Not fatal if
+    # it's simply not there.
+    try:
+        WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, _CONSENT_BUTTON_SELECTOR))
+        ).click()
+    except TimeoutException:
+        pass
 
 
 def _parse_row(row) -> dict:

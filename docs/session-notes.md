@@ -176,7 +176,49 @@ Re-verified after committing `359979a` (before the merge existed):
 3 sources) both still succeeded against live Postgres — that commit didn't
 introduce any regression.
 
-## 6. Loose ends worth knowing about, not yet addressed
+## 6. First real GitHub Actions run: two more production-only bugs
+
+Once actually triggered on GitHub (2026-08-31), the workflow surfaced two
+bugs that local testing hadn't, and couldn't have:
+
+**a) `imageId` has a real foreign key in production**
+(`psycopg2.errors.ForeignKeyViolation`, constraints `image_fk` /
+`sinoptik_imageid_fk`, `Key (imageId)=(0) is not present in table
+"Image"`). Section 3a's local schema introspection found *no* foreign key
+on `imageId` and concluded the sentinel `NO_IMAGE_ID = 0` was safe to
+insert directly — that was true against whichever database the local
+`.env` pointed to at the time, but not against the one GitHub Actions
+connects to via the repo secrets (either a different database, or the
+same one with the constraint added since). Point is: **local introspection
+of "the DB" isn't reliable evidence about the DB actually used in CI**
+unless you've confirmed they're the same database.
+
+Fix: `src/meteo/db.py` now does a get-or-create against `Image` for a
+single placeholder row (`name='no-image'`, a tiny valid 1×1 PNG as `src`
+so nothing downstream chokes on empty bytes), caches its real id for the
+life of the process, and resolves every `NO_IMAGE_ID` sentinel to that
+real id right before insert (`_resolve_image_id`). Verified locally: the
+placeholder row was created (`id=1, name='no-image', 68 bytes`) and all 9
+combinations still insert successfully.
+
+**b) Dalivali's consent-banner wait crashed unhandled on the GitHub
+runner** (`TimeoutException` after 10s, in `_dismiss_consent`). Unlike
+freemeteo's and sinoptik's consent-dismissal code, Dalivali's wasn't
+wrapped in try/except — it assumed the banner always appears. It reliably
+appeared on your local (EU-based) network but apparently doesn't on a
+GitHub-hosted runner's (US-based) IP, which is a common consent-management
+behavior: **many CMPs only show a consent banner to EU/UK-geolocated
+visitors**, and simply don't render one otherwise. Fixed by wrapping it in
+the same try/except `TimeoutException: pass` pattern already used
+elsewhere — not fatal if the banner just isn't there.
+
+Neither of these could have been caught by testing from your own machine,
+since both are specifically about *what's different when the code runs
+somewhere else* (a different DB, a different IP geolocation) — worth
+remembering as a category of bug distinct from "the site changed" or "the
+code has a mistake."
+
+## 7. Loose ends worth knowing about, not yet addressed
 
 - **`Dalivali.humidity` and `Freemeteo.rain` type coercion**: both are
   scraped as plain strings and rely on Postgres implicitly coercing
@@ -185,10 +227,16 @@ introduce any regression.
   today but is a bit implicit — if a future site change makes either
   field contain something non-numeric where the DB expects a number,
   you'll get a runtime insert error, not a caught validation error.
-- **`Image.name` uniqueness was never confirmed.** `docs/image-capture.md`
-  flags this: if you ever implement real image capture, verify there's
-  actually a unique constraint on `Image.name` before relying on
-  `ON CONFLICT (name)`.
+- **`Image.name` uniqueness was never confirmed.** `db.py`'s new
+  placeholder get-or-create (section 6a) sidesteps this deliberately —
+  it's a plain `SELECT` then `INSERT` rather than `INSERT ... ON CONFLICT
+  (name)`, so it doesn't assume a unique constraint exists. That leaves a
+  small race window (two processes both finding no existing row and both
+  inserting one) that's irrelevant today — one process, sequential
+  scraping — but would matter if runs ever became concurrent. If you ever
+  implement real per-day image capture (`docs/image-capture.md`), revisit
+  this: confirm whether `Image.name` actually has a unique constraint
+  before switching to `ON CONFLICT`.
 - **freemeteo's new scraper is inherently more fragile than before**,
   since it now depends on a CSS-breakpoint trick (window size) rather
   than just element selectors. Worth an occasional `--no-headless` sanity

@@ -11,10 +11,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date
 
-# "imageId" is NOT NULL on all three tables but nothing populates a real
-# Image row per forecast (see docs/image-capture.md for why, and how to
-# properly wire one up later). 0 is a safe placeholder: there's no foreign
-# key on imageId, so it doesn't need to reference a real Image row.
+# "imageId" is NOT NULL (and, in production, has a real foreign key against
+# "Image") on all three tables, but nothing populates a real Image row per
+# forecast (see docs/image-capture.md for why, and how to properly wire one
+# up later). 0 is a sentinel meaning "no real image" -- db.py resolves it to
+# a get-or-create placeholder Image row before insert, since it can't be
+# used as a literal value wherever the foreign key is enforced.
 NO_IMAGE_ID = 0
 
 

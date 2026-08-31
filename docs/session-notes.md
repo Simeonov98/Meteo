@@ -69,14 +69,30 @@ code needed).
   `.github/workflows/scrape.yml`.
 - **Important caveat if you re-enable the schedule**: GitHub only fires
   `schedule:` triggers for workflow files that exist on the repo's
-  **default branch** (`main`). Right now everything is on the local `v2`
-  branch, which hasn't even been pushed to GitHub yet — so the workflow
-  currently can't run at all (scheduled or manual) until `v2` is pushed,
-  and cron specifically won't fire until it's on `main`.
-- Nothing has been pushed to `origin` (GitHub) at any point in this
-  session. Everything so far is local-only, across 3 commits on `v2`
-  (`e02ad55`, `f3d0699`, `7578017`) plus a batch of uncommitted fixes from
-  section 3 below.
+  **default branch** (`main`). This used to block cron entirely (see
+  section 5) — it's resolved now that `v2` has been merged into `main`.
+
+### Where the workflow's parameters actually come from
+
+Nothing about *what* the workflow scrapes is configurable from the
+workflow file itself — it just runs `python main.py` with no CLI flags,
+so every default baked into the code applies:
+
+| Parameter | Value when the workflow runs | Where it's actually set |
+|---|---|---|
+| Cities scraped | All 3 (Plovdiv, Sofia, Vidin) | `src/meteo/config.py` — the `CITIES` registry. No `--city` flag is passed, so `cli.py` defaults to all of them. |
+| Sources scraped | All 3 (freemeteo, dalivali, sinoptik) | Same file, `SOURCES` tuple. No `--source` flag passed. |
+| Headless mode | Always headless (no visible browser — there's no display on a CI runner anyway) | CLI default in `src/meteo/cli.py` (`--no-headless` not passed) |
+| Log level | `INFO` | CLI default in `src/meteo/cli.py` |
+| Python version | 3.12 | Set directly in the workflow file, `actions/setup-python@v5` step |
+| Runner OS | `ubuntu-latest` | Set directly in the workflow file (`runs-on:`) — this is what gives it Firefox + geckodriver preinstalled |
+| Python dependencies | Whatever `pyproject.toml` lists (`selenium`, `psycopg2-binary`, `python-dotenv`) | `pip install -e .` reads `pyproject.toml` directly; `webdriver-manager` is commented out there, unused |
+| DB connection (`PGHOST`, `PGDATABASE`, `PGUSER`, `PGPASSWORD`, `PGSSLMODE`) | Whatever's configured on GitHub | **GitHub repo → Settings → Secrets and variables → Actions → Repository secrets.** Not visible in any file — that's the point of using secrets. Injected into the job as env vars in the workflow file's `env:` block, then read via `os.getenv(...)` in `src/meteo/settings.py`. |
+
+To scrape a subset instead (e.g. only Sofia, or only one source), the
+workflow file's `- run: python main.py` line would need arguments added,
+e.g. `python main.py --city sofia --source sinoptik` — nothing like that
+exists today; every run does the full 3×3 sweep.
 
 ## 3. Data bugs found while actually running it against the real DB
 
@@ -132,22 +148,33 @@ All 9 combinations (3 cities × 3 sources) run end-to-end and write real
 rows to Postgres — verified live, not just unit tests. Unit tests
 (`pytest`, 21 tests) also pass.
 
-## 5. Commit history on `v2`
+## 5. Commit history, and `v2` → `main`
 
-All fixes from section 3, plus this doc, are committed locally on `v2` as
-of commit `359979a`:
+All fixes from section 3, plus this doc, were committed locally on `v2`:
 ```
 359979a Fix local driver setup and real DB/scraping bugs found in live testing
 7578017 Comment out scheduled cron job in GitHub Actions workflow
 f3d0699 Add hourly GitHub Actions workflow to run the scraper
 e02ad55 Rewrite project as installable package (v2)
 ```
-**Nothing has been pushed to `origin` (GitHub) yet** — everything above is
-local-only. `main` is untouched throughout.
 
-Re-verified after committing `359979a`: `pytest` (21/21 passing) and a
-full `python main.py --city sofia` run (all 3 sources) both still succeed
-against live Postgres — the commit didn't introduce any regression.
+At the time those were written, this doc said "nothing has been pushed to
+`origin` yet." **That went stale without this session doing it.** At some
+point outside this session, `v2` was pushed to GitHub and merged into
+`main` via PR #2 (`13e3a26 Merge pull request #2 from Simeonov98/v2`, plus
+an intermediate `b860c74 update docs` on `v2` after the commits above).
+This session only noticed because a later `git status` reported "ahead of
+origin/v2" unexpectedly. Current state, confirmed directly:
+- `main` (local) is in sync with `origin/main`, at `13e3a26` — this is the
+  full v2 rewrite, merged.
+- `v2` (local and `origin/v2`) is also in sync, at `b860c74`.
+- So: **v2 is live on the default branch.** This is what resolves the
+  "cron won't fire" caveat in section 2 above.
+
+Re-verified after committing `359979a` (before the merge existed):
+`pytest` (21/21 passing) and a full `python main.py --city sofia` run (all
+3 sources) both still succeeded against live Postgres — that commit didn't
+introduce any regression.
 
 ## 6. Loose ends worth knowing about, not yet addressed
 

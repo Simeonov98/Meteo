@@ -227,6 +227,33 @@ live and firing every hour.** The fix commit for both bugs above
 `main` 1 commit ahead of `origin/main` — so every hourly run until it's
 pushed will keep failing the same way.
 
+**Update — fixes pushed and confirmed working (2026-08-31 ~17:58 local):**
+the next hourly run (using `f48fd54`) got **8 of 9 combinations through
+successfully** — no more `imageId` FK violations anywhere, and Dalivali
+got past consent for all 3 cities. Both fixes are confirmed working in
+production, not just locally.
+
+The 1 failure, `sinoptik/vidin`, was a different and unrelated issue:
+```
+urllib3.exceptions.ReadTimeoutError: HTTPConnectionPool(host='localhost', port=47159): Read timed out. (read timeout=120)
+```
+This is Selenium's Python client getting no response from the local
+geckodriver process for 120s during `driver.get(url)` — geckodriver/Firefox
+itself hung, not "the page loaded slowly." The same code succeeded
+scraping sinoptik for Plovdiv and Sofia earlier in the *same* run, so it's
+not a code defect — most likely either sinoptik.bg being briefly
+unresponsive, or the runner straining after 8 sequential full Firefox
+launch/quit cycles in ~5.5 minutes. `cli.py`'s per-source error isolation
+worked exactly as designed: this one failure didn't block the other 8,
+which all wrote real rows. GitHub still marked the overall job "failed"
+(exit code 1, since `main()` returns 1 on any failure) even though 89% of
+the data landed fine — a UI nuance, not data loss.
+
+Decided not to add retry-on-failure logic for this — one transient flake
+out of 9 doesn't justify the added complexity and worst-case runtime cost.
+If this becomes a recurring pattern rather than a one-off, revisit that
+decision.
+
 ## 7. Loose ends worth knowing about, not yet addressed
 
 - **`Dalivali.humidity` and `Freemeteo.rain` type coercion**: both are
